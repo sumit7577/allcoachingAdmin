@@ -579,7 +579,6 @@ class Institute(models.Model):
     two_star_count = models.IntegerField()
     unique_user_id = models.CharField(max_length=255, blank=True, null=True)
     upi = models.CharField(max_length=255, blank=True, null=True)
-    pin = models.ForeignKey('StudentPinList', models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return self.name
