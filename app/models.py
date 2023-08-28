@@ -488,7 +488,7 @@ class InsTestSeriesQuestions(models.Model):
     id = models.BigIntegerField(primary_key=True)
     correct_opt = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    explanation = models.CharField(max_length=255, blank=True, null=True)
+    explanation = models.TextField(blank=True, null=True)
     optiona = models.CharField(max_length=255, blank=True, null=True)
     optionb = models.CharField(max_length=255, blank=True, null=True)
     optionc = models.CharField(max_length=255, blank=True, null=True)
