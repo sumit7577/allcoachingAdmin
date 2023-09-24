@@ -547,7 +547,7 @@ class InsTestSeriesUserResponseBrief(models.Model):
 
 class Institute(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    about = models.CharField(max_length=255, blank=True, null=True)
+    about = models.TextField(blank=True, null=True)
     account_holder_name = models.CharField(max_length=255, blank=True, null=True)
     account_number = models.CharField(max_length=255, blank=True, null=True)
     add_date = models.DateTimeField(blank=True, null=True)
