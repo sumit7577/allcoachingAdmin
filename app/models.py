@@ -86,6 +86,21 @@ class AdminTestSubCategories(models.Model):
         db_table = 'admin_test_sub_categories'
 
 
+class Coupon(models.Model):
+    id = models.BigIntegerField(primary_key=True,auto_created=True)
+    coupon = models.CharField(unique=True, max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    max_usage = models.IntegerField()
+    value = models.IntegerField()
+
+    class Meta:
+        managed = True
+        db_table = 'coupon'
+
+    def __str__(self) -> str:
+        return self.coupon
+
+
 class Category(models.Model):
     id = models.BigIntegerField(primary_key=True)
     icon = models.CharField(max_length=255, blank=True, null=True)

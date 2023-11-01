@@ -99,5 +99,6 @@ admin.site.register(TestSeriesQuestionResponse)
 admin.site.register(TestSeriesResponse)
 admin.site.register(Transaction)
 admin.site.register(VideoPlaylist)
+admin.site.register(Coupon)
 
 
