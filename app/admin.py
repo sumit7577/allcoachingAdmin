@@ -52,6 +52,19 @@ class CourseDocumentAdmin(admin.ModelAdmin):
    get_course.short_description = "Course Name"
 
 
+class InsReviewAdmin(admin.ModelAdmin):
+    list_display = ("id","course_name","student_name","institute_name")
+
+    def institute_name(self, obj):
+        return Institute.objects.get(id=obj.ins_id).name
+    
+    def course_name(self, obj):
+        return Course.objects.get(id=obj.course_id).title
+    
+    def student_name(self, obj):
+        return Student.objects.get(id=obj.student_id).name
+
+
 admin.site.register(Admin)
 admin.site.register(AdminBlogs)
 admin.site.register(AdminConfig)
@@ -77,7 +90,7 @@ admin.site.register(FeedPollOptions)
 admin.site.register(FeedReport)
 admin.site.register(HibernateSequence)
 admin.site.register(InsLeads)
-admin.site.register(InsReview)
+admin.site.register(InsReview,InsReviewAdmin)
 admin.site.register(InsSubscription)
 admin.site.register(InsTestSeries,InsTestSeriesAdmin)
 admin.site.register(InsTestSeriesPlaylist)

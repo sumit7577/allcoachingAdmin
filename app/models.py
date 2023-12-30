@@ -438,7 +438,7 @@ class InsReview(models.Model):
     time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self) -> str:
-        return self.review
+        return str(self.course_id)
 
     class Meta:
         managed = True
@@ -584,7 +584,7 @@ class Institute(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     one_star_count = models.IntegerField()
     password = models.CharField(max_length=255, blank=True, null=True)
-    phone = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(unique=True, max_length=255, blank=True, null=True)
     state = models.CharField(max_length=255, blank=True, null=True)
     status = models.IntegerField()
     three_star_count = models.IntegerField()
@@ -594,6 +594,10 @@ class Institute(models.Model):
     two_star_count = models.IntegerField()
     unique_user_id = models.CharField(max_length=255, blank=True, null=True)
     upi = models.CharField(max_length=255, blank=True, null=True)
+    ins = models.ForeignKey('QuestionReport', models.DO_NOTHING, blank=True, null=True)
+    account_id = models.CharField(max_length=255, blank=True, null=True)
+    account_status = models.CharField(max_length=255, blank=True, null=True)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
