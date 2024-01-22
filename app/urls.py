@@ -3,5 +3,6 @@ from app import views
 
 
 urlpatterns = [
-    path("",views.home)
+    path("",views.home),
+    path("upload",views.file)
 ]
