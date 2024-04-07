@@ -37,7 +37,7 @@ class UploadLiveStream(APIView):
         with open("default.mp4",mode="rb") as downloaded:
             bunnyApi = TusFileUploader()
             video = bunnyApi.upload(downloaded,fileName)
-            fileNameCourse = f"files/{video[0]["guid"]}--{fileName}"
+            fileNameCourse = f"files/{video[0]['guid']}--{fileName}"
             id= CourseVideo.objects.all()
             courseCreated = CourseVideo.objects.create(id=len(id)+1,date=timezone.now(),course_id=stream_input.course.id,playlist_id=0,
                                        video_location=fileNameCourse,video_type="offline",
