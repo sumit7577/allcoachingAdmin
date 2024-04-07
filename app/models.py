@@ -238,6 +238,7 @@ class CourseTimeTableSubject(models.Model):
 
 class CourseVideo(models.Model):
     id = models.BigIntegerField(primary_key=True)
+    bunny_link = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
     course_id = models.BigIntegerField()
     date = models.DateTimeField(blank=True, null=True)
@@ -257,7 +258,8 @@ class CourseVideo(models.Model):
     video_thumb = models.CharField(max_length=255, blank=True, null=True)
     video_type = models.CharField(max_length=255, blank=True, null=True)
     views = models.BigIntegerField()
-    bunny_link = models.CharField(max_length=255, blank=True, null=True)
+    length = models.BigIntegerField()
+    encoded = models.IntegerField()
 
     def __str__(self):
         return self.name
@@ -560,6 +562,7 @@ class InsTestSeriesUserResponseBrief(models.Model):
         db_table = 'ins_test_series_user_response_brief'
 
 
+
 class Institute(models.Model):
     id = models.BigIntegerField(primary_key=True)
     about = models.TextField(blank=True, null=True)
@@ -605,6 +608,23 @@ class Institute(models.Model):
     class Meta:
         managed = True
         db_table = 'institute'
+
+
+class LiveStream(models.Model):
+    created = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    rtmps_key = models.CharField(max_length=255)
+    rtmps_url = models.CharField(max_length=255)
+    uid = models.CharField(max_length=255)
+    institute = models.ForeignKey(Institute, models.DO_NOTHING)
+    course = models.ForeignKey(Course, models.DO_NOTHING)
+
+    def __str__(self) -> str:
+        return self.institute.name
+
+    class Meta:
+        managed = True
+        db_table = 'live_stream'
 
 
 class MainBanners(models.Model):

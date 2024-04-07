@@ -2,6 +2,7 @@ from typing import Any, Tuple
 from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
+from django.http.response import HttpResponse
 from app.models import *
 
 # Register your models here.
@@ -13,6 +14,10 @@ class CourseAdmin(admin.ModelAdmin):
         return Institute.objects.get(id=obj.inst_id).name
    
    get_institute.short_description = 'Institute Name'
+
+
+class LiveStreamAdmin(admin.ModelAdmin):
+    list_display = ("id","name","institute")
 
 
 class CourseVideoAdmin(admin.ModelAdmin):
@@ -113,5 +118,5 @@ admin.site.register(TestSeriesResponse)
 admin.site.register(Transaction)
 admin.site.register(VideoPlaylist)
 admin.site.register(Coupon)
-
+admin.site.register(LiveStream,LiveStreamAdmin)
 
