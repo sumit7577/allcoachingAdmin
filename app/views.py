@@ -24,16 +24,30 @@ def file(request):
 class UploadLiveStream(APIView):
     def post(self,request,*args,**kwargs):
         data = request.data
-        stream_input = LiveStream.objects.get(uid=data["liveInput"])
+        liveUid = data.get("liveInput")
+
+        if liveUid is None:
+            return JsonResponse({"status":False,"data":data})
+        
+        stream_input = LiveStream.objects.get(uid=liveUid)
+        LiveStreamLogs.objects.create(data=data).save()
         fileName = data["meta"]['name'].replace(" ","--")+".mp4"
         cloudfareApi = CloudfareSdk()
-        resp = cloudfareApi.createDownload(request.data.get("uid"))
+        resp = cloudfareApi.createDownload(data.get("uid"))
+        if resp is None:
+            JsonResponse({"status":True,"data":data})
+
+        if resp['result']['default']['status'] == "error":
+            return JsonResponse({"status":False,"data":resp})
+
         while(resp['result']['default']['percentComplete']!= 100):
             time.sleep(5)
-            resp = cloudfareApi.createDownload(request.data.get("uid"))
-        fileObject = cloudfareApi.createToken(request.data.get("uid"))
+            resp = cloudfareApi.createDownload(data.get("uid"))
+        fileObject = cloudfareApi.createToken(data.get("uid"))
+
         with open("default.mp4",mode="wb") as file:
             file.write(fileObject)
+
         with open("default.mp4",mode="rb") as downloaded:
             bunnyApi = TusFileUploader()
             video = bunnyApi.upload(downloaded,fileName)
@@ -46,6 +60,6 @@ class UploadLiveStream(APIView):
         
         os.remove("default.mp4")
 
-        return JsonResponse({"status":True,"data":request.data})
+        return JsonResponse({"status":True,"data":data})
 
 

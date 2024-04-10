@@ -119,4 +119,5 @@ admin.site.register(Transaction)
 admin.site.register(VideoPlaylist)
 admin.site.register(Coupon)
 admin.site.register(LiveStream,LiveStreamAdmin)
+admin.site.register(LiveStreamLogs)
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 class Admin(models.Model):
@@ -858,3 +859,8 @@ class VideoPlaylist(models.Model):
     class Meta:
         managed = True
         db_table = 'video_playlist'
+
+    
+class LiveStreamLogs(models.Model):
+    data = models.JSONField(null=True,blank=True)
+    timestamp = models.DateTimeField(default=timezone.now())
