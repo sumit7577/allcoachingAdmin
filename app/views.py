@@ -22,9 +22,17 @@ def file(request):
 
 
 class UploadLiveStream(APIView):
+
+    def get(self,request,*args,**kwargs):
+        return JsonResponse({"status":True,"message":"Api is running"})
+    
     def post(self,request,*args,**kwargs):
         data = request.data
         liveUid = data.get("liveInput")
+
+        isSaved = LiveStreamLogs.objects.filter(uuid=data.get("uid"))
+        if len(isSaved) > 0:
+            return JsonResponse({"status":True,"data":"Stream already saved"})
 
         if liveUid is None:
             return JsonResponse({"status":False,"data":data})

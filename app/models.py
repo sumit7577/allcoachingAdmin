@@ -862,5 +862,9 @@ class VideoPlaylist(models.Model):
 
     
 class LiveStreamLogs(models.Model):
+    uuid = models.CharField(max_length=200,blank=False,null=False,default="qwerty")
     data = models.JSONField(null=True,blank=True)
     timestamp = models.DateTimeField(default=timezone.now())
+
+    def __str__(self) -> str:
+        return self.uid
