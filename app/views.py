@@ -30,7 +30,7 @@ class UploadLiveStream(APIView):
         data = request.data
         liveUid = data.get("liveInput")
 
-        isSaved = LiveStreamLogs.objects.filter(uuid=data.get("uid"))
+        isSaved = LiveStreamLogs.objects.filter(uid=data.get("uid"))
         if len(isSaved) > 0:
             return JsonResponse({"status":True,"data":"Stream already saved"})
 
@@ -38,7 +38,7 @@ class UploadLiveStream(APIView):
             return JsonResponse({"status":False,"data":data})
         
         stream_input = LiveStream.objects.get(uid=liveUid)
-        LiveStreamLogs.objects.create(data=data).save()
+        LiveStreamLogs.objects.create(data=data,uid=data.get("uid")).save()
         fileName = data["meta"]['name'].replace(" ","--")+".mp4"
         cloudfareApi = CloudfareSdk()
         resp = cloudfareApi.createDownload(data.get("uid"))
