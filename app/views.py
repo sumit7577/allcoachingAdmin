@@ -31,7 +31,7 @@ class UploadLiveStream(APIView):
         liveUid = data.get("liveInput")
 
         isSaved = LiveStreamLogs.objects.filter(uid=data.get("uid"))
-        if len(isSaved) > 0:
+        if len(isSaved) < 0:
             return JsonResponse({"status":True,"data":"Stream already saved"})
 
         if liveUid is None:
@@ -60,10 +60,12 @@ class UploadLiveStream(APIView):
             bunnyApi = TusFileUploader()
             video = bunnyApi.upload(downloaded,fileName)
             fileNameCourse = f"files/{video[0]['guid']}--{fileName}"
-            id= CourseVideo.objects.all()
-            courseCreated = CourseVideo.objects.create(id=len(id)+1,date=timezone.now(),course_id=stream_input.course.id,playlist_id=0,
+            max_id = CourseVideo.objects.aggregate(max_id=models.Max('id'))['max_id']
+            next_id = 1 if max_id is None else max_id + 1
+            courseCreated = CourseVideo.objects.create(id=next_id,date=timezone.now(),course_id=stream_input.course.id,playlist_id=0,
                                        video_location=fileNameCourse,video_type="offline",
                                        views=0,length=data['duration'],encoded=0,name=stream_input.course.title,time_stamp=timezone.now())
+            print(courseCreated.id)
             courseCreated.save()
         
         os.remove("default.mp4")
