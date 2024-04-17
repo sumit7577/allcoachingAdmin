@@ -31,7 +31,7 @@ class UploadLiveStream(APIView):
         liveUid = data.get("liveInput")
 
         isSaved = LiveStreamLogs.objects.filter(uid=data.get("uid"))
-        if len(isSaved) < 0:
+        if len(isSaved) > 0:
             return JsonResponse({"status":True,"data":"Stream already saved"})
 
         if liveUid is None:
