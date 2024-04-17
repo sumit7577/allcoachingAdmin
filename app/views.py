@@ -65,7 +65,6 @@ class UploadLiveStream(APIView):
             courseCreated = CourseVideo.objects.create(id=next_id,date=timezone.now(),course_id=stream_input.course.id,playlist_id=0,
                                        video_location=fileNameCourse,video_type="offline",
                                        views=0,length=data['duration'],encoded=0,name=stream_input.course.title,time_stamp=timezone.now())
-            print(courseCreated.id)
             courseCreated.save()
         
         os.remove("default.mp4")
