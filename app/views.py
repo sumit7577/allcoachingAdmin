@@ -1,7 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse,FileResponse
 from django.contrib.auth import authenticate
-from .models import Student
 from django.core import serializers
 from rest_framework.views import APIView
 from app.models import *
@@ -21,7 +20,7 @@ def file(request):
 
 
 
-class UploadLiveStream(APIView):
+"""class UploadLiveStream(APIView):
 
     def get(self,request,*args,**kwargs):
         return JsonResponse({"status":True,"message":"Api is running"})
@@ -72,3 +71,4 @@ class UploadLiveStream(APIView):
         return JsonResponse({"status":True,"data":data})
 
 
+"""

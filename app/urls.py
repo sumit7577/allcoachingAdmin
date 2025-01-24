@@ -4,5 +4,5 @@ from app import views
 
 urlpatterns = [
     path("",views.home),
-    path("webhook-livestream/",views.UploadLiveStream.as_view()),
+    #path("webhook-livestream/",views.UploadLiveStream.as_view()),
 ]

@@ -85,10 +85,10 @@ DATABASES = {
     'default':{
         'CONN_MAX_AGE': 500,
         "ENGINE":'django.db.backends.mysql',
-        "NAME":"allcoaching",
+        "NAME":"Allcoaching",
         "USER":"allcoaching",
-        "PASSWORD":"Ilostmylife@1",
-        "HOST":"34.131.131.122",
+        "PASSWORD":"Idontknow@1",
+        "HOST":"80.225.209.180",
         "PORT":"3306"
     }
 }
