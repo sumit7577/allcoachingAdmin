@@ -24,12 +24,15 @@ class User(models.Model):
         managed = True
         db_table = 'user'
 
-        
+
 
 class AuthToken(models.Model):
     key = models.CharField(primary_key=True, max_length=40)
     created = models.DateTimeField()
-    user_id = models.PositiveBigIntegerField(unique=True)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.key
 
     class Meta:
         managed = True
@@ -42,6 +45,9 @@ class Banner(models.Model):
     image = models.CharField(max_length=200)
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
+    
+    def __str__(self):
+        return self.title
 
     class Meta:
         managed = True
@@ -55,50 +61,61 @@ class Category(models.Model):
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         managed = True
         db_table = 'category'
-
-
-class Course(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=150)
-    institute_id = models.BigIntegerField()
-    category_id = models.BigIntegerField(blank=True, null=True)
-    banner_id = models.BigIntegerField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    price = models.FloatField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
-
-    class Meta:
-        managed = True
-        db_table = 'course'
-
 
 class Institute(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
-    category_id = models.BigIntegerField(blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    banners = models.ManyToManyField(Banner)
     director_name = models.CharField(max_length=150)
-    user_id = models.OneToOneField(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         managed = True
         db_table = 'institute'
 
 
-class InstituteBanners(models.Model):
+class Course(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=150)
+    institute = models.OneToOneField(Institute, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    price = models.FloatField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        managed = True
+        db_table = 'course'
+
+
+
+"""class InstituteBanners(models.Model):
     id = models.BigAutoField(primary_key=True)
     institute_id = models.BigIntegerField()
     banner_id = models.BigIntegerField()
 
     class Meta:
         managed = True
-        db_table = 'institute_banners'
+        db_table = 'institute_banners'"""
 
 
 
