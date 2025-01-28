@@ -1,4 +1,19 @@
 from django.db import models
+from BunnyCDN.Storage import Storage
+from BunnyCDN.CDN import CDN
+from app.BunnyStorage import BunnyStorage
+
+def uploadToBunny(instance, filename):
+    """
+    Upload an in-memory file directly to BunnyCDN.
+    """
+    storage = BunnyStorage()
+    file_content = instance.photos.file.read()
+    response = storage.uploadImage(file_content, filename)
+    if response[0]:
+        return response[1]
+    else:
+        raise Exception(response[1])
 
 
 class User(models.Model):
@@ -14,11 +29,28 @@ class User(models.Model):
     date_joined = models.DateTimeField()
     date_updated = models.DateTimeField()
     is_active = models.IntegerField()
-    image = models.CharField(max_length=300, blank=True, null=True)
+    image = models.ImageField(storage=BunnyStorage(), blank=True, null=True)
     is_institute = models.IntegerField()
+
+    def createFileImage(self):
+        """
+        Generate the BunnyCDN directory path for the image dynamically.
+        """
+        return f"user/{self.id}/"
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        if not self._state.adding:  # Ensures that 'id' is available
+            directory = self.createFileImage()
+            self.image.storage = BunnyStorage(directory)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name}'
+    
 
     class Meta:
         managed = True
@@ -29,7 +61,7 @@ class User(models.Model):
 class AuthToken(models.Model):
     key = models.CharField(primary_key=True, max_length=40)
     created = models.DateTimeField()
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.key
@@ -42,9 +74,25 @@ class AuthToken(models.Model):
 class Banner(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=150)
-    image = models.CharField(max_length=200)
+    image = models.ImageField(storage=BunnyStorage())
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
+
+    def createFileImage(self):
+        """
+        Generate the BunnyCDN directory path for the image dynamically.
+        """
+        return f"banner/{self.id}/"
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        if not self._state.adding:  # Ensures that 'id' is available
+            directory = self.createFileImage()
+            self.image.storage = BunnyStorage(directory)
+
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
@@ -78,6 +126,23 @@ class Institute(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
+    image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
+
+    def createFileImage(self):
+        """
+        Generate the BunnyCDN directory path for the image dynamically.
+        """
+        return f"institute/{self.id}/"
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        if not self._state.adding:  # Ensures that 'id' is available
+            directory = self.createFileImage()
+            self.image.storage = BunnyStorage(directory)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -90,13 +155,30 @@ class Institute(models.Model):
 class Course(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
-    institute = models.OneToOneField(Institute, on_delete=models.CASCADE)
+    institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     price = models.FloatField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
+    image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
+
+    def createFileImage(self):
+        """
+        Generate the BunnyCDN directory path for the image dynamically.
+        """
+        return f"course/{self.id}/"
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        if not self._state.adding:  # Ensures that 'id' is available
+            directory = self.createFileImage()
+            self.image.storage = BunnyStorage(directory)
+
+        super().save(*args, **kwargs)
 
 
     def __str__(self):
@@ -124,6 +206,7 @@ class TestRel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     banners = models.ManyToManyField(Banner)
+
 
     def __str__(self):
         return f'{self.user.name}'
