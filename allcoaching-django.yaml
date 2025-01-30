@@ -1,6 +1,6 @@
 version: '3'
 services:
-  go-web-app:
+  allcoaching_go:
     container_name: allcoaching_admin
     restart: always
     build:
