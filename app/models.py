@@ -2,6 +2,7 @@ from django.db import models
 from BunnyCDN.Storage import Storage
 from BunnyCDN.CDN import CDN
 from app.BunnyStorage import BunnyStorage
+from django.utils import timezone
 
 def uploadToBunny(instance, filename):
     """
@@ -28,9 +29,9 @@ class User(models.Model):
     address = models.CharField(max_length=400, blank=True, null=True)
     date_joined = models.DateTimeField()
     date_updated = models.DateTimeField()
-    is_active = models.IntegerField()
+    is_active = models.BooleanField(default=True)
     image = models.ImageField(storage=BunnyStorage(), blank=True, null=True)
-    is_institute = models.IntegerField()
+    is_institute = models.BooleanField(default=False)
 
     def createFileImage(self):
         """
@@ -187,6 +188,22 @@ class Course(models.Model):
     class Meta:
         managed = True
         db_table = 'course'
+
+
+class CourseVideo(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=150)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    video = models.FileField(upload_to="videos", blank=True, null=True)
+    metadata = models.JSONField(blank=True, null=True)  # This field type is a guess.
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = False
+        db_table = 'course_video'
 
 
 
