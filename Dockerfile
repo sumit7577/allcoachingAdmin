@@ -16,8 +16,10 @@ COPY . /app/
 # Expose port 8000 for Django
 EXPOSE 8000
 
-# Set the environment variable for Django settings
-ENV DJANGO_SETTINGS_MODULE=allcoaching.settings
+
+# Install Gunicorn in the container
+RUN pip install gunicorn
+
 
 # Run the Django development server (you can change it for production later)
 CMD ["gunicorn", "allcoaching.wsgi:application", "--bind", "0.0.0.0:8000"]
