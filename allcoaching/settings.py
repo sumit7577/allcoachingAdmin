@@ -78,18 +78,18 @@ WSGI_APPLICATION = 'allcoaching.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'defaults': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
     'default':{
         'CONN_MAX_AGE': 500,
-        "ENGINE":'django.db.backends.mysql',
+        "ENGINE":'django.db.backends.postgresql',
         "NAME":"Allcoaching",
         "USER":"allcoaching",
         "PASSWORD":"Idontknow@1",
         "HOST":"80.225.209.180",
-        "PORT":"3306"
+        "PORT":"5432"
     }
 }
 

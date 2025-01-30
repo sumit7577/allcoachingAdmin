@@ -1,0 +1,10 @@
+version: '3'
+services:
+  go-web-app:
+    container_name: allcoaching_admin
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8000:8000"
