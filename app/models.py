@@ -27,8 +27,8 @@ class User(models.Model):
     state = models.CharField(max_length=100, blank=True, null=True)
     pincode = models.PositiveBigIntegerField(blank=True, null=True)
     address = models.CharField(max_length=400, blank=True, null=True)
-    date_joined = models.DateTimeField()
-    date_updated = models.DateTimeField()
+    date_joined = models.DateTimeField(default=timezone.now())
+    date_updated = models.DateTimeField(default=timezone.now())
     is_active = models.BooleanField(default=True)
     image = models.ImageField(storage=BunnyStorage(), blank=True, null=True)
     is_institute = models.BooleanField(default=False)
@@ -61,7 +61,7 @@ class User(models.Model):
 
 class AuthToken(models.Model):
     key = models.CharField(primary_key=True, max_length=40)
-    created = models.DateTimeField()
+    created = models.DateTimeField(default=timezone.now())
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -76,8 +76,8 @@ class Banner(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=150)
     image = models.ImageField(storage=BunnyStorage())
-    date_created = models.DateTimeField()
-    date_updated = models.DateTimeField()
+    date_created = models.DateTimeField(default=timezone.now())
+    date_updated = models.DateTimeField(default=timezone.now())
 
     def createFileImage(self):
         """
@@ -107,8 +107,8 @@ class Category(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
     icon = models.CharField(max_length=200, blank=True, null=True)
-    date_created = models.DateTimeField()
-    date_updated = models.DateTimeField()
+    date_created = models.DateTimeField(default=timezone.now())
+    date_updated = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
         return self.name
@@ -125,8 +125,8 @@ class Institute(models.Model):
     banners = models.ManyToManyField(Banner)
     director_name = models.CharField(max_length=150)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    date_created = models.DateTimeField()
-    date_updated = models.DateTimeField()
+    date_created = models.DateTimeField(default=timezone.now())
+    date_updated = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
 
     def createFileImage(self):
@@ -161,8 +161,8 @@ class Course(models.Model):
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     price = models.FloatField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
 
     def createFileImage(self):
