@@ -3,6 +3,7 @@ from BunnyCDN.Storage import Storage
 from BunnyCDN.CDN import CDN
 from app.BunnyStorage import BunnyStorage
 from django.utils import timezone
+from app.Bunny import TusFileUploader
 
 def uploadToBunny(instance, filename):
     """
@@ -159,6 +160,7 @@ class Course(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    collection = models.JSONField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     price = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now())
@@ -175,11 +177,34 @@ class Course(models.Model):
         """
         Override the save method to set the BunnyStorage dynamically.
         """
-        if not self._state.adding:  # Ensures that 'id' is available
+
+        if self.pk:
+            previous = Course.objects.filter(pk=self.pk).values("image").first()
+            if previous and previous["image"] != self.image.name:
+                directory = self.createFileImage()
+                self.image.storage = BunnyStorage(directory)
+                
+            if self.collection is None:
+                name = f"{self.institute.name}-{self.name}"
+                collection = TusFileUploader(instance=None)
+                status,value =  collection.createCollection(name)
+                if not status:
+                    raise Exception(f"Failed to create collection: {str(value)}")
+                self.collection = value
+
+        if self._state.adding:
+            name = f"{self.institute.name}-{self.name}"
+            collection = TusFileUploader(instance=None)
+            status,value =  collection.createCollection(name)
+            if not status:
+                raise Exception(f"Failed to create collection: {str(value)}")
+            self.collection = value
             directory = self.createFileImage()
             self.image.storage = BunnyStorage(directory)
+                
 
         super().save(*args, **kwargs)
+
 
 
     def __str__(self):
@@ -190,20 +215,30 @@ class Course(models.Model):
         db_table = 'course'
 
 
-class CourseVideo(models.Model):
+class CourseVideos(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category,on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
-    video = models.FileField(upload_to="videos", blank=True, null=True)
-    metadata = models.JSONField(blank=True, null=True)  # This field type is a guess.
+    video = models.FileField(storage=TusFileUploader(instance=None), blank=True, null=True)
+    metadata = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
 
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        self.video.storage = TusFileUploader(instance=self)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
     class Meta:
-        managed = False
-        db_table = 'course_video'
+        managed = True
+        db_table = 'course_videos'
 
 
 
@@ -219,11 +254,11 @@ class CourseVideo(models.Model):
 
 
 
-class TestRel(models.Model):
+"""class TestRel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     banners = models.ManyToManyField(Banner)
 
 
     def __str__(self):
-        return f'{self.user.name}'
+        return f'{self.user.name}'"""

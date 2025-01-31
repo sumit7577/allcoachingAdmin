@@ -30,6 +30,9 @@ jobs:
             echo "🗑 Removing old container..."
             sudo docker rm allcoaching_admin || true
 
+            echo "🗑 Removing old Image..."
+            sudo docker rmi -f allcoachingadmin-allcoaching_go || true
+
             echo "🚀 Starting new container..."
             sudo docker compose -f allcoaching-django.yaml up -d
 
