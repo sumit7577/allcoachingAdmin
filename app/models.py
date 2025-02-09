@@ -5,6 +5,7 @@ from app.BunnyStorage import BunnyStorage
 from django.utils import timezone
 from app.Bunny import TusFileUploader
 from docx import Document
+from django.db import transaction
 
 
 
@@ -240,7 +241,7 @@ class TestSeries(models.Model):
     file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
     course = models.ForeignKey(to=Course,blank=True, null=True,on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
-    questions = models.JSONField()
+    questions = models.JSONField(blank=True,null=True)
     timer = models.BigIntegerField()
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
@@ -253,22 +254,26 @@ class TestSeries(models.Model):
     def __str__(self):
         return self.name
     
+    
     def createDocDir(self):
-        """
-        Generate the BunnyCDN directory path for the image dynamically.
-        """
-        return f"course/{self.course.id}/docs/"
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.course:
+            return f"course/{self.course.id}/docs/"
+        return "course/general/docs/"
+    
 
-    def save(self, *args, **kwargs):
-        """
-        Override the save method to set the BunnyStorage dynamically.
-        """
-        directory = self.createDocDir()
-        self.file.storage = BunnyStorage(directory)
+    def extract_questions_from_docx(self):
+        """Extract questions and answers from the uploaded .docx file."""
+        if not self.file:
+            return [], []
 
-        """Extract Question from files"""
-        document = Document(self.file.file)
-        table_data = [] 
+        try:
+            document = Document(self.file.file)
+        except Exception as e:
+            print(f"Error reading document: {e}")
+            return [], []
+
+        table_data = []
         answer_solution_data = []
 
         for table in document.tables:
@@ -277,14 +282,14 @@ class TestSeries(models.Model):
 
             for row in table.rows:
                 cells = [cell.text.strip() for cell in row.cells]
-                if len(cells) >= 2:  # Ensure there are at least two cells
+                if len(cells) >= 2:
                     key, value = cells[0], cells[1]
 
                     # Store "Answer" and "Solution" separately
                     if key in ["Answer", "Solution"]:
                         answer_solution[key] = value
                     else:
-                        if key in table_dict:  # If key already exists, convert value to list
+                        if key in table_dict:
                             if isinstance(table_dict[key], list):
                                 table_dict[key].append(value)
                             else:
@@ -292,22 +297,39 @@ class TestSeries(models.Model):
                         else:
                             table_dict[key] = value
 
-                    if key in ["Question"]:
+                    if key == "Question":
                         answer_solution[key] = value
 
-            if table_dict:  # Append only if there's valid data
+            if table_dict:
                 table_data.append(table_dict)
-            if answer_solution:  # Append Answer & Solution separately
+            if answer_solution:
                 answer_solution_data.append(answer_solution)
-        
-        self.questions = table_data
-        TestSeriesSolution.objects.create(test_series= self,solution=answer_solution_data).save()
 
-        if self.name == "":
+        return table_data, answer_solution_data
+
+    def save(self, *args, **kwargs):
+        """Override save method to process questions from .docx."""
+        is_new = self.pk is None  # Check if instance is being created
+
+        if is_new and self.file:
+            self.file.storage = BunnyStorage(self.createDocDir())  # Set correct storage path
+
+        
+        if self.file:
+            questions, solutions = self.extract_questions_from_docx()
+            self.questions = questions
+
+
+        # Assign name if not set
+        if not self.name:
             self.name = self.file.name
 
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            super().save(*args, **kwargs)  # Save `TestSeries` first
+            if solutions:
+                TestSeriesSolution.objects.create(test_series=self, solution=solutions)
 
+        
 
 class TestSeriesAttempt(models.Model):
     id = models.BigAutoField(primary_key=True)
