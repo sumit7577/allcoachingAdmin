@@ -28,4 +28,4 @@ RUN pip install gunicorn
 
 
 # Run the Django development server (you can change it for production later)
-CMD ["gunicorn", "allcoaching.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "--workers", "3", "--timeout", "300", "--worker-class", "gthread", "--threads", "3", "--bind", "0.0.0.0:8000", "allcoaching.wsgi:application"]
