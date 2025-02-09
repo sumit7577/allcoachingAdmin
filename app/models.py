@@ -4,18 +4,8 @@ from BunnyCDN.CDN import CDN
 from app.BunnyStorage import BunnyStorage
 from django.utils import timezone
 from app.Bunny import TusFileUploader
+from docx import Document
 
-def uploadToBunny(instance, filename):
-    """
-    Upload an in-memory file directly to BunnyCDN.
-    """
-    storage = BunnyStorage()
-    file_content = instance.photos.file.read()
-    response = storage.uploadImage(file_content, filename)
-    if response[0]:
-        return response[1]
-    else:
-        raise Exception(response[1])
 
 
 class User(models.Model):
@@ -240,6 +230,115 @@ class CourseVideos(models.Model):
         managed = True
         db_table = 'course_videos'
 
+def docxReader(instance,filename):
+    docx = Document(instance.file)
+
+
+class TestSeries(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=300, blank=True, null=True)
+    file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
+    course = models.ForeignKey(to=Course,blank=True, null=True,on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    questions = models.JSONField()
+    timer = models.BigIntegerField()
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+
+    class Meta:
+        managed = True
+        db_table = 'test_series'
+
+    def __str__(self):
+        return self.name
+    
+    def createDocDir(self):
+        """
+        Generate the BunnyCDN directory path for the image dynamically.
+        """
+        return f"course/{self.course.id}/docs/"
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to set the BunnyStorage dynamically.
+        """
+        directory = self.createDocDir()
+        self.file.storage = BunnyStorage(directory)
+
+        """Extract Question from files"""
+        document = Document(self.file.file)
+        table_data = [] 
+        answer_solution_data = []
+
+        for table in document.tables:
+            table_dict = {}
+            answer_solution = {}
+
+            for row in table.rows:
+                cells = [cell.text.strip() for cell in row.cells]
+                if len(cells) >= 2:  # Ensure there are at least two cells
+                    key, value = cells[0], cells[1]
+
+                    # Store "Answer" and "Solution" separately
+                    if key in ["Answer", "Solution"]:
+                        answer_solution[key] = value
+                    else:
+                        if key in table_dict:  # If key already exists, convert value to list
+                            if isinstance(table_dict[key], list):
+                                table_dict[key].append(value)
+                            else:
+                                table_dict[key] = [table_dict[key], value]
+                        else:
+                            table_dict[key] = value
+
+                    if key in ["Question"]:
+                        answer_solution[key] = value
+
+            if table_dict:  # Append only if there's valid data
+                table_data.append(table_dict)
+            if answer_solution:  # Append Answer & Solution separately
+                answer_solution_data.append(answer_solution)
+        
+        self.questions = table_data
+        TestSeriesSolution.objects.create(test_series= self,solution=answer_solution_data).save()
+
+        if self.name == "":
+            self.name = self.file.name
+
+        super().save(*args, **kwargs)
+
+
+class TestSeriesAttempt(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    test_series = models.ForeignKey(to=TestSeries,on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User,on_delete=models.CASCADE)
+    result = models.JSONField()
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'test_series_attempt'
+
+    def __str__(self):
+        return self.user.username
+
+
+class TestSeriesSolution(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    test_series = models.ForeignKey(to=TestSeries,on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    solution = models.JSONField()
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'test_series_solution'
+
+    def __str__(self):
+        return self.test_series.name
 
 
 """class InstituteBanners(models.Model):
