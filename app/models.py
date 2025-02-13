@@ -4,8 +4,8 @@ from BunnyCDN.CDN import CDN
 from app.BunnyStorage import BunnyStorage
 from django.utils import timezone
 from app.Bunny import TusFileUploader
-from docx import Document
 from django.db import transaction
+from app.TestSeries import TestSeriesExtractor
 
 
 
@@ -231,8 +231,6 @@ class CourseVideos(models.Model):
         managed = True
         db_table = 'course_videos'
 
-def docxReader(instance,filename):
-    docx = Document(instance.file)
 
 
 class TestSeries(models.Model):
@@ -260,52 +258,7 @@ class TestSeries(models.Model):
         if self.course:
             return f"course/{self.course.id}/docs/"
         return "course/general/docs/"
-    
-
-    def extract_questions_from_docx(self):
-        """Extract questions and answers from the uploaded .docx file."""
-        if not self.file:
-            return [], []
-
-        try:
-            document = Document(self.file.file)
-        except Exception as e:
-            print(f"Error reading document: {e}")
-            return [], []
-
-        table_data = []
-        answer_solution_data = []
-
-        for table in document.tables:
-            table_dict = {}
-            answer_solution = {}
-
-            for row in table.rows:
-                cells = [cell.text.strip() for cell in row.cells]
-                if len(cells) >= 2:
-                    key, value = cells[0], cells[1]
-
-                    # Store "Answer" and "Solution" separately
-                    if key in ["Answer", "Solution"]:
-                        answer_solution[key] = value
-                    else:
-                        if key in table_dict:
-                            if isinstance(table_dict[key], list):
-                                table_dict[key].append(value)
-                            else:
-                                table_dict[key] = [table_dict[key], value]
-                        else:
-                            table_dict[key] = value
-
-                    if key == "Question":
-                        answer_solution[key] = value
-
-            if table_dict:
-                table_data.append(table_dict)
-            if answer_solution:
-                answer_solution_data.append(answer_solution)
-
-        return table_data, answer_solution_data
+       
 
     def save(self, *args, **kwargs):
         """Override save method to process questions from .docx."""
@@ -316,7 +269,8 @@ class TestSeries(models.Model):
 
         
         if self.file:
-            questions, solutions = self.extract_questions_from_docx()
+            extractor = TestSeriesExtractor(file= self.file,name=self.file.name)
+            questions, solutions = extractor.extract_questions()
             self.questions = questions
 
 
