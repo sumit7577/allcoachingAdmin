@@ -13,10 +13,11 @@ class TestSeriesExtractor:
             return False
         try:
             self.file.seek(0)
-            csv.Sniffer().sniff(self.file.read(1024).decode("utf-8"))
+            csv.Sniffer().sniff(self.file.read(1024).decode("utf-8", errors="ignore"))
             self.file.seek(0)
             return True
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
 
     def is_docx(self) -> bool:
