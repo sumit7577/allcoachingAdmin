@@ -11,14 +11,7 @@ class TestSeriesExtractor:
         """Check if the file is a valid CSV"""
         if not self.file.name.lower().endswith(".csv"):
             return False
-        try:
-            self.file.seek(0)
-            csv.Sniffer().sniff(self.file.read(1024).decode("utf-8",errors="ignore"))
-            self.file.seek(0)
-            return True
-        except Exception as e:
-            print(e)
-            return False
+        return True
 
     def is_docx(self) -> bool:
         """Check if the file is a valid DOCX"""
