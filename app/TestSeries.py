@@ -13,7 +13,7 @@ class TestSeriesExtractor:
             return False
         try:
             self.file.seek(0)
-            csv.Sniffer().sniff(self.file.read(1024).decode("utf-8", errors="ignore"))
+            csv.Sniffer().sniff(self.file.read(1024).decode("utf-8",errors="ignore"))
             self.file.seek(0)
             return True
         except Exception as e:
@@ -43,7 +43,7 @@ class TestSeriesExtractor:
     def extract_from_csv(self):
         """Extract questions from a CSV file"""
         self.file.seek(0)  # Ensure reading from the start
-        reader = csv.reader(self.file.read().decode("utf-8").splitlines())
+        reader = csv.reader(self.file.read().decode("utf-8",errors="ignore").splitlines())
     
         headers = next(reader, None)  # Extract headers
         if not headers:
