@@ -1,11 +1,15 @@
 import csv
 import docx
 from django.core.files.base import File
+import os
+from pathlib import Path
+from app.BunnyStorage import BunnyStorage
 
 class TestSeriesExtractor:
-    def __init__(self, file: File, name: str):
+    def __init__(self, file: File, name: str, id):
         self.file = file
         self.name = name
+        self.id = id
 
     def is_csv(self) -> bool:
         """Check if the file is a valid CSV"""
@@ -73,6 +77,32 @@ class TestSeriesExtractor:
                     
         return structured_data, solution_data
     
+    
+    def save_image(self, image_data, question_number, image_index,key):
+        """Save image in structured format: file_folder/Q_NUMBER/solution/IMG_INDEX.jpg"""
+        folder_path = f"test_series/{self.id}/{question_number}/{key}"
+
+        image_filename = f"_{image_index}.jpg"
+        storage = BunnyStorage(folder_path)
+        try:
+            response= storage._save(image_filename,image_data)
+            return response
+        except Exception as e:
+            raise ValueError(e)
+
+
+    def extract_images_from_document(self, document):
+        """Extract all embedded images and return a mapping of rel ID to image data"""
+        image_mapping = {}
+        for rel in document.part.rels:
+            try:
+                rel_target = document.part.rels[rel].target_part
+                if "image" in rel_target.content_type:
+                    image_mapping[rel] = rel_target.blob
+            except ValueError:
+                continue
+        return image_mapping
+    
 
     def extract_from_docx(self):
         """Extract questions from a DOCX file"""
@@ -87,15 +117,30 @@ class TestSeriesExtractor:
 
         table_data = []
         answer_solution_data = []
+        question_number = 0
+
+        image_mapping = self.extract_images_from_document(document)
 
         for table in document.tables:
             table_dict = {}
             answer_solution = {}
+            image_index = 1
+    
 
             for row in table.rows:
-                cells = [cell.text.strip() for cell in row.cells]
+                    
+                cells = [cell for cell in row.cells]
+
+                for rel in cells[1]._element.findall(".//a:blip", namespaces={"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}):
+                        rid = rel.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed")
+                        if rid in image_mapping:
+                            image_path = self.save_image(image_mapping[rid], question_number, image_index, cells[0].text.strip())
+                            cells[1].text += f' <img src="{image_path}" />'
+                            image_index += 1
+
+
                 if len(cells) >= 2:
-                    key, value = cells[0], cells[1]
+                    key, value = cells[0].text.strip(), cells[1].text.strip()
 
                     # Store "Answer" and "Solution" separately
                     if key in ["Answer", "Solution"]:
@@ -111,6 +156,7 @@ class TestSeriesExtractor:
 
                     if key == "Question":
                         answer_solution[key] = value
+                        question_number +=1 
 
             if table_dict:
                 table_data.append(table_dict)

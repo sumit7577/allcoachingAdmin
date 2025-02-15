@@ -262,29 +262,35 @@ class TestSeries(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save method to process questions from .docx."""
+        # Assign name if not set
+        if not self.name:
+            self.name = self.file.name
+            
         is_new = self.pk is None  # Check if instance is being created
 
         if is_new and self.file:
             self.file.storage = BunnyStorage(self.createDocDir())  # Set correct storage path
 
         
-        if self.file:
-            extractor = TestSeriesExtractor(file= self.file,name=self.file.name)
+        if self.file and is_new:
+            latest_id = TestSeries.objects.order_by('-id').first()
+            next_id = latest_id.id + 1 if latest_id else 1
+            
+            extractor = TestSeriesExtractor(file= self.file,name=self.file.name,id=next_id)
             questions, solutions = extractor.extract_questions()
             self.questions = questions
 
+            with transaction.atomic():
+                super().save(*args, **kwargs)  # Save `TestSeries` first
+                if solutions and is_new:
+                    TestSeriesSolution.objects.create(test_series=self, solution=solutions)
 
-        # Assign name if not set
-        if not self.name:
-            self.name = self.file.name
 
-        with transaction.atomic():
-            super().save(*args, **kwargs)  # Save `TestSeries` first
-            if solutions:
-                TestSeriesSolution.objects.create(test_series=self, solution=solutions)
+        if not is_new:
+            super().save(*args, **kwargs)
 
-        
 
+    
 class TestSeriesAttempt(models.Model):
     id = models.BigAutoField(primary_key=True)
     test_series = models.ForeignKey(to=TestSeries,on_delete=models.CASCADE)
