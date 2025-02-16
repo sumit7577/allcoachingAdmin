@@ -161,7 +161,7 @@ class TestSeriesExtractor:
                         else:
                             table_dict[key] = value
 
-                    if key in ["Positive Marks","Negative Mark","Question"]:
+                    if key in ["Positive Marks","Negative Marks","Question"]:
                         answer_solution[key] = value
                         question_number +=1 
 
