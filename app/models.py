@@ -298,6 +298,9 @@ class TestSeriesAttempt(models.Model):
     result = models.JSONField()
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
+    submitted = models.BooleanField(default=False)
+    total_score = models.FloatField()
+    total_marks = models.FloatField()
 
     class Meta:
         managed = True
