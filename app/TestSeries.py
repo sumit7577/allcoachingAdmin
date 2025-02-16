@@ -4,6 +4,7 @@ from django.core.files.base import File
 import os
 from pathlib import Path
 from app.BunnyStorage import BunnyStorage
+import uuid
 
 class TestSeriesExtractor:
     def __init__(self, file: File, name: str, id):
@@ -53,11 +54,14 @@ class TestSeriesExtractor:
             if len(row) >= len(headers):
                 question_data = {headers[i]: row[i] for i in range(len(headers))}
 
+                question_uuid = str(uuid.uuid4())
+
                 # Process options
                 options = [question_data.get(f"option{chr(65+i)}", "") for i in range(4)]
                 options = [opt for opt in options if opt]  # Remove empty options
 
                 structured_entry = {
+                    "UUID": question_uuid,
                     "Question": question_data.get("question", ""),
                     "Option": options,
                     "Type": question_data.get("type", ""),
@@ -67,9 +71,12 @@ class TestSeriesExtractor:
 
                 # Process correct option and explanation separately
                 answer_solution = {
+                    "UUID": question_uuid,
                     "Answer": question_data.get("correctOpt", ""),
                     "Solution": question_data.get("explanation", ""),
-                    "Question": question_data.get("question", "")
+                    "Question": question_data.get("question", ""),
+                    "Negative Marks": question_data.get("negative_marks", ""),
+                    "Positive Marks": question_data.get("positive_marks", ""),
                 }
 
                 structured_data.append(structured_entry)
@@ -125,8 +132,8 @@ class TestSeriesExtractor:
             table_dict = {}
             answer_solution = {}
             image_index = 1
+            question_uuid = str(uuid.uuid4()) 
     
-
             for row in table.rows:
                     
                 cells = [cell for cell in row.cells]
@@ -154,13 +161,16 @@ class TestSeriesExtractor:
                         else:
                             table_dict[key] = value
 
-                    if key == "Question":
+                    if key in ["Positive Marks","Negative Mark","Question"]:
                         answer_solution[key] = value
                         question_number +=1 
 
             if table_dict:
+                table_dict["UUID"] = question_uuid
                 table_data.append(table_dict)
+
             if answer_solution:
+                answer_solution["UUID"] = question_uuid
                 answer_solution_data.append(answer_solution)
 
         return table_data, answer_solution_data
