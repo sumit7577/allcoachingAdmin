@@ -324,6 +324,44 @@ class TestSeriesSolution(models.Model):
 
     def __str__(self):
         return self.test_series.name
+    
+
+class Documents(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    course = models.ForeignKey(to=Course,blank=True, null=True,on_delete=models.CASCADE)
+    name = models.CharField(max_length=300, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = False
+        db_table = 'documents'
+
+    def __str__(self):
+        return self.name
+    
+    def createDocDir(self):
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.course:
+            return f"course/{self.course.id}/docs/"
+        return "course/general/docs/"
+    
+    def save(self, *args, **kwargs):
+        """Override save method to process questions from .docx."""
+        # Assign name if not set
+        if not self.name:
+            self.name = self.file.name
+            
+        is_new = self.pk is None
+        if is_new and self.file:
+            self.file.storage = BunnyStorage(self.createDocDir())
+            super().save(*args, **kwargs)
+
+        if not is_new:
+            super().save(*args, **kwargs)
+        
 
 
 """class InstituteBanners(models.Model):
