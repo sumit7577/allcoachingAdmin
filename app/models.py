@@ -6,6 +6,7 @@ from django.utils import timezone
 from app.Bunny import TusFileUploader
 from django.db import transaction
 from app.TestSeries import TestSeriesExtractor
+from app.Cloudfare import CloudfareSdk
 
 
 
@@ -230,6 +231,37 @@ class CourseVideos(models.Model):
     class Meta:
         managed = True
         db_table = 'course_videos'
+
+
+class CourseLiveStream(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=300)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    live = models.CharField(max_length=300, blank=True, null=True)
+    metadata = models.JSONField(blank=True, null=True)
+    scheduled = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'course_live_stream'
+
+    def save(self, *args, **kwargs):
+        course_words = self.course.name.strip().split()[:10]  # take first 10 words
+        course_name_trimmed = ' '.join(course_words)
+        name = f"{self.name}-({course_name_trimmed})"
+        cloudfare = CloudfareSdk()
+        metadata = cloudfare.createLiveInput(name)
+
+        if(metadata.get("success") == True):
+            self.metadata = metadata
+            super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+        
 
 
 
