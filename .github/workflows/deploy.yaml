@@ -21,7 +21,7 @@ jobs:
       - name: SSH into Server and Deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@155.248.254.181 << 'EOF'
-            cd /home/opc/allcoachingAdmin
+            cd /home/ubuntu/allcoachingAdmin
             git pull origin master
 
             echo "🛑 Stopping old container..."
