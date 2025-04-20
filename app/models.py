@@ -393,6 +393,44 @@ class Documents(models.Model):
 
         if not is_new:
             super().save(*args, **kwargs)
+
+
+communityChoice = (
+    ('image', 'Image'),
+    ('link', 'Link'),
+    ('poll', 'Poll'),
+    ("quiz", "Quiz"),
+)
+
+class CommunityPost(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
+    name = models.CharField(max_length=500)
+    options = models.JSONField(blank=True, null=True)
+    image = models.FileField(storage=BunnyStorage(), blank=True, null=True)
+    link = models.CharField(max_length=500, blank=True, null=True)
+    type = models.CharField(max_length=300,choices=communityChoice)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'community_post'
+
+    def __str__(self):
+        return self.name
+    
+    def createDocDir(self):
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.institute:
+            return f"institute/{self.institute.id}/posts/"
+        return "institute/general/posts/"
+    
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image.storage = BunnyStorage(self.createDocDir())
+
+        super().save(*args, **kwargs)
         
 
 
