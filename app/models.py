@@ -418,7 +418,7 @@ class CommunityPost(models.Model):
         db_table = 'community_post'
 
     def __str__(self):
-        return self.name
+        return self.name[:50]
     
     def createDocDir(self):
         """Generate the BunnyCDN directory path for the image dynamically."""
@@ -431,6 +431,33 @@ class CommunityPost(models.Model):
             self.image.storage = BunnyStorage(self.createDocDir())
 
         super().save(*args, **kwargs)
+
+
+class CommunityComment(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=500)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'community_comment'
+        unique_together = ('post', 'user', 'comment')
+
+
+class CommunityLike(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    post= models.ForeignKey(CommunityPost, on_delete=models.CASCADE)
+    user= models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'community_like'
+        unique_together = ('post', 'user')
         
 
 
