@@ -9,7 +9,6 @@ from app.TestSeries import TestSeriesExtractor
 from app.Cloudfare import CloudfareSdk
 
 
-
 class User(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
@@ -63,6 +62,20 @@ class AuthToken(models.Model):
     class Meta:
         managed = True
         db_table = 'auth_token'
+
+
+class Otp(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    phone = models.CharField(unique=True, max_length=10)
+    otp = models.CharField(max_length=6)
+    created = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'otp'
+
+    def __str__(self):
+        return self.otp
 
 
 class Banner(models.Model):
