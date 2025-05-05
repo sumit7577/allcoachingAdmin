@@ -131,6 +131,7 @@ class Institute(models.Model):
     banner = models.ForeignKey(Banner,on_delete=models.CASCADE)
     director_name = models.CharField(max_length=150)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
+    users = models.ManyToManyField(User, blank=True, related_name='institute_users',verbose_name="Followers")
     date_created = models.DateTimeField(default=timezone.now())
     date_updated = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
@@ -157,6 +158,16 @@ class Institute(models.Model):
     class Meta:
         managed = True
         db_table = 'institute'
+
+
+class InstituteUsers(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    institute_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'institute_users'
 
 
 class Course(models.Model):
