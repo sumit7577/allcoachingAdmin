@@ -255,6 +255,37 @@ class CourseVideos(models.Model):
     class Meta:
         managed = True
         db_table = 'course_videos'
+        
+
+class VideoComment(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    video = models.ForeignKey(CourseVideos, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=500)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return f"{self.user.username} commented on {self.video.name}"
+    
+    class Meta:
+        managed = True
+        db_table = 'video_comment'
+
+
+class VideoLike(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    video = models.ForeignKey(CourseVideos, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+    
+    def __str__(self):
+        return f"{self.user.username} liked {self.video.name}"
+
+    class Meta:
+        managed = True
+        db_table = 'video_like'
 
 
 class CourseLiveStream(models.Model):
