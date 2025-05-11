@@ -18,6 +18,29 @@ def home(request):
 def file(request):
     return FileResponse(open("uploads.zip","rb"))
 
+class WebhookVideo(APIView):
+    def get(self,request,*args,**kwargs):
+        return JsonResponse({"status":True,"message":"Api is running"})
+    
+    def post(self,request,*args,**kwargs):
+        data = request.data
+        video_guid = data.get('VideoGuid')
+        status = data.get('Status')
+        if not video_guid or status is None:
+            return JsonResponse({"status": False, "message": "Missing VideoGuid or Status", "data": data})
+        
+        if int(status) == 3:
+            storage = TusFileUploader(instance=None)
+            videoName = f"{storage.HLS_URL}{video_guid}/playlist.m3u8"
+            metadata = storage.getVideoMetadata(video_guid)
+            if metadata[0] == True:
+                courseVideo = CourseVideos.objects.get(video=videoName)
+                if courseVideo is not None:
+                    courseVideo.metadata = metadata[1]
+                    courseVideo.save()
+            
+        return JsonResponse({"status":True,"data":metadata[1]})
+
 
 
 """class UploadLiveStream(APIView):

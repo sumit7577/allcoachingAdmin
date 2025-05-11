@@ -33,7 +33,6 @@ class TusFileUploader(Storage):
 
     def upload(self,fs,filename):
         video = self.create_video(filename=filename)
-        print("video resp",video)
         self.set_headers(video['guid'],131897)
         try:
             uploader = self.client.uploader(file_stream=fs)
@@ -81,6 +80,15 @@ class TusFileUploader(Storage):
         params = ''.join(headers)
         signature = hashlib.sha256(params.encode("utf-8")).hexdigest()
         return signature
+    
+    def getVideoMetadata(self,videoId):
+        url = f"{self.BASE_URL}/{videoId}"
+        header = {"AccessKey":self.API_KEY,"Content-Type":"application/json","accept":"application/json"}
+        res = self.session.get(url=url,headers=header)
+        if res.status_code == 200:
+            return True,res.json()
+        else:
+            return False,res.text
 
     def _save(self, name, content):
         """
