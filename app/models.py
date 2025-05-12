@@ -10,7 +10,7 @@ from app.Cloudfare import CloudfareSdk
 
 
 class User(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    
     name = models.CharField(max_length=150)
     username = models.CharField(unique=True, max_length=100, blank=True, null=True)
     email = models.CharField(unique=True, max_length=100)
@@ -42,7 +42,7 @@ class User(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.username}'
     
 
     class Meta:
@@ -238,6 +238,7 @@ class CourseVideos(models.Model):
     description = models.TextField(blank=True, null=True)
     video = models.FileField(storage=TusFileUploader(instance=None), blank=True, null=True)
     metadata = models.JSONField(blank=True, null=True)
+    views  = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
 

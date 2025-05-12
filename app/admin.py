@@ -17,10 +17,17 @@ class CourseVideoAdmin(admin.ModelAdmin):
 class TestSeriesAdmin(admin.ModelAdmin):
     list_display = ("id","name")
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("id", "username", "phone","email")
+    search_fields = ("username", "email")
+
+    def last_login(self, obj):
+        return obj.last_login.strftime("%Y-%m-%d %H:%M:%S") if obj.last_login else None
+
 # Register the model with the custom admin class
 admin.site.register(CourseVideos, CourseVideoAdmin)
 admin.site.register(AuthToken)
-admin.site.register(User)
+admin.site.register(User,UserAdmin)
 admin.site.register(Banner)
 admin.site.register(Category)
 admin.site.register(Course)
