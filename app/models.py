@@ -174,6 +174,7 @@ class Course(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
+    users = models.ManyToManyField(User, blank=True, related_name='course_users',verbose_name="Enrolled Users")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     banners = models.ManyToManyField(Banner, blank=True)
     collection = models.JSONField(blank=True, null=True)
@@ -514,6 +515,23 @@ class CommunityLike(models.Model):
         managed = True
         db_table = 'community_like'
         unique_together = ('post', 'user')
+
+
+class Order(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_data = models.TextField()  # This field type is a guess.
+    status = models.CharField(max_length=100)
+    payment_id = models.CharField(max_length=400, blank=True, null=True)
+    order_id = models.CharField(max_length=400, blank=True, null=True)
+    signature = models.CharField(max_length=400, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'order'
         
 
 
