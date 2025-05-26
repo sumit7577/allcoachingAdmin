@@ -534,7 +534,6 @@ class Order(models.Model):
         db_table = 'order'
         
 
-
 """class InstituteBanners(models.Model):
     id = models.BigAutoField(primary_key=True)
     institute_id = models.BigIntegerField()
