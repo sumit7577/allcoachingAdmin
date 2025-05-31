@@ -390,6 +390,8 @@ class TestSeriesAttempt(models.Model):
     submitted = models.BooleanField(default=False)
     total_score = models.FloatField()
     total_marks = models.FloatField()
+    percentile = models.FloatField(blank=True, null=True)
+    rank = models.IntegerField(default=0)
 
     class Meta:
         managed = True

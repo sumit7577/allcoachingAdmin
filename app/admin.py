@@ -24,6 +24,13 @@ class UserAdmin(admin.ModelAdmin):
     def last_login(self, obj):
         return obj.last_login.strftime("%Y-%m-%d %H:%M:%S") if obj.last_login else None
 
+
+class TestSeriesAttemptAdmin(admin.ModelAdmin):
+    list_display = ("id","test_series","total_score","user","rank","percentile","submitted")
+    list_filter = ("test_series",)
+
+
+
 # Register the model with the custom admin class
 admin.site.register(CourseVideos, CourseVideoAdmin)
 admin.site.register(AuthToken)
@@ -36,7 +43,7 @@ admin.site.register(VideoComment)
 admin.site.register(Institute)
 admin.site.register(TestSeries,TestSeriesAdmin)
 admin.site.register(TestSeriesSolution)
-admin.site.register(TestSeriesAttempt)
+admin.site.register(TestSeriesAttempt,TestSeriesAttemptAdmin)
 admin.site.register(Documents)
 admin.site.register(CourseLiveStream)
 admin.site.register(CommunityPost)
