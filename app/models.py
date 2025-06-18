@@ -556,3 +556,35 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.user.name}'"""
+
+
+class Schedule(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    title = models.CharField(max_length=300)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    image = models.FileField(storage=BunnyStorage(), blank=True, null=True)
+    type = models.CharField(max_length=50, choices=(('Video', 'Video'), ('TestSeries', 'TestSeries'),('Pdf', 'Pdf')), default='Video')
+    schedule_date = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'schedule'
+
+    def createDocDir(self):
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.course:
+            return f"course/{self.course.id}/schedules/"
+        return "course/schedules/"
+    
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image.storage = BunnyStorage(self.createDocDir())
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
