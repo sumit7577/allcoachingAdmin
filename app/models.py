@@ -9,6 +9,7 @@ from app.TestSeries import TestSeriesExtractor
 from app.Cloudfare import CloudfareSdk
 
 
+
 class User(models.Model):
     
     name = models.CharField(max_length=150)
@@ -123,6 +124,22 @@ class Category(models.Model):
         managed = True
         db_table = 'category'
 
+
+class Playlist(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=150)
+    icon = models.CharField(max_length=200, blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now())
+    date_updated = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'playlist'
+
+    def __str__(self):
+        return self.name
+
+
 class Institute(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100, blank=True, null=True)
@@ -236,6 +253,7 @@ class CourseVideos(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    playlist = models.ForeignKey(Playlist,on_delete=models.CASCADE,blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     video = models.FileField(storage=TusFileUploader(instance=None), blank=True, null=True)
     metadata = models.JSONField(blank=True, null=True)
@@ -327,6 +345,7 @@ class TestSeries(models.Model):
     name = models.CharField(max_length=300, blank=True, null=True)
     file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
     course = models.ForeignKey(to=Course,blank=True, null=True,on_delete=models.CASCADE)
+    playlist = models.ForeignKey(Playlist,on_delete=models.CASCADE,blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     questions = models.JSONField(blank=True,null=True)
     timer = models.BigIntegerField()
@@ -420,6 +439,7 @@ class TestSeriesSolution(models.Model):
 class Documents(models.Model):
     id = models.BigAutoField(primary_key=True)
     course = models.ForeignKey(to=Course,blank=True, null=True,on_delete=models.CASCADE)
+    playlist = models.ForeignKey(Playlist,on_delete=models.CASCADE,blank=True, null=True)
     name = models.CharField(max_length=300, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
@@ -587,4 +607,34 @@ class Schedule(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+class Doubt(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    question = models.CharField(max_length=500)
+    answer = models.CharField(max_length=500, blank=True, null=True)
+    file = models.CharField(max_length=200,null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = True
+        db_table = 'doubt'
+
+    def createDocDir(self):
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.course:
+            return f"course/{self.course.id}/doubts/"
+        return "course/doubts/"
+    
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.file.storage = BunnyStorage(self.createDocDir())
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.question[:50]}"
 
