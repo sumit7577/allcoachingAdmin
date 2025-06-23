@@ -197,6 +197,8 @@ class Course(models.Model):
     collection = models.JSONField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     price = models.FloatField()
+    demo_video = models.FileField(storage=TusFileUploader(instance=None), blank=True, null=True)
+    pdf = models.FileField(storage=BunnyStorage(), blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
@@ -206,6 +208,12 @@ class Course(models.Model):
         Generate the BunnyCDN directory path for the image dynamically.
         """
         return f"course/{self.id}/"
+    
+    def createDocDir(self):
+        """Generate the BunnyCDN directory path for the image dynamically."""
+        if self.course:
+            return f"course/{self.course.id}/pdf/"
+        return "course/general/docs/"
 
     def save(self, *args, **kwargs):
         """
@@ -235,8 +243,12 @@ class Course(models.Model):
             self.collection = value
             directory = self.createFileImage()
             self.image.storage = BunnyStorage(directory)
-                
 
+        if self.demo_video:
+            self.demo_video.storage = TusFileUploader(instance=self)
+        if self.pdf:
+            self.pdf.storage = BunnyStorage(self.createDocDir())
+                
         super().save(*args, **kwargs)
 
 
@@ -613,12 +625,12 @@ class Doubt(models.Model):
     id = models.BigAutoField(primary_key=True)
     question = models.CharField(max_length=500)
     answer = models.CharField(max_length=500, blank=True, null=True)
-    file = models.CharField(max_length=200,null=True, blank=True)
+    file = models.FileField(storage=BunnyStorage(), blank=True, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
-
+    
     class Meta:
         managed = True
         db_table = 'doubt'
