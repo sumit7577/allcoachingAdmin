@@ -211,8 +211,8 @@ class Course(models.Model):
     
     def createDocDir(self):
         """Generate the BunnyCDN directory path for the image dynamically."""
-        if self.course:
-            return f"course/{self.course.id}/pdf/"
+        if self.pk:
+            return f"course/{self.id}/pdf/"
         return "course/general/pdf/"
 
     def save(self, *args, **kwargs):

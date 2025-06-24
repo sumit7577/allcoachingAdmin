@@ -24,6 +24,14 @@ class TusFileUploader(Storage):
         self.instance = instance
         self.session = requests.session()
 
+    def __instancecheck__(self):
+        from app.models import CourseVideos, Course  # Local import to avoid circular dependency
+        
+        if isinstance(self.instance, CourseVideos):
+            return "CourseVideos"
+        else:
+            return "Course"
+
 
     def set_headers(self,id,libId):
         headers = self.create_headers(libraryId=libId,videoId=id)
@@ -43,8 +51,13 @@ class TusFileUploader(Storage):
             return False
 
     def create_video(self,filename):
-        header = {"AccessKey":self.API_KEY,"Content-Type":"application/json","accept":"application/json"}         
-        body = {"title":filename,"collectionId":self.instance.course.collection["guid"]}
+        header = {"AccessKey":self.API_KEY,"Content-Type":"application/json","accept":"application/json"}
+        if self.__instancecheck__() == "CourseVideos":
+            collection= self.instance.course.collection
+        else:
+            collection = self.instance.collection
+
+        body = {"title":filename,"collectionId":collection["guid"]}
         res = self.session.post(url=self.BASE_URL,json=body,headers=header)
         print(res.text)
         return res.json()
@@ -98,7 +111,9 @@ class TusFileUploader(Storage):
         if response[1]:
             data = response[0]
             guid = data["guid"]
-            self.instance.metadata = response[0]
+            if(self.__instancecheck__() == "CourseVideos"):
+                self.instance.metadata = response[0]
+
             url = f"{self.HLS_URL}{guid}/playlist.m3u8"
             return url
         else:
