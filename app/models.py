@@ -9,14 +9,12 @@ from app.TestSeries import TestSeriesExtractor
 from app.Cloudfare import CloudfareSdk
 
 
-
 class User(models.Model):
-    
     name = models.CharField(max_length=150)
     username = models.CharField(unique=True, max_length=100, blank=True, null=True)
     email = models.CharField(unique=True, max_length=100)
     password = models.CharField(max_length=400)
-    phone = models.CharField(unique=True, max_length=13)
+    phone = models.CharField(unique=True, max_length=10)
     state = models.CharField(max_length=100, blank=True, null=True)
     pincode = models.PositiveBigIntegerField(blank=True, null=True)
     address = models.CharField(max_length=400, blank=True, null=True)
