@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-9c(jr$uwf3@ql*c++=_)sfaj952l7!5z_@mu6=*zo6c1bq8nxa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CORS_ALLOWED_ALL_ORIGIN = True
+
 ALLOWED_HOSTS = ["*"]
 
 
@@ -41,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "app",
-    "user"
+    "user",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'allcoaching.urls'
