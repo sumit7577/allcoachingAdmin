@@ -3,7 +3,6 @@ from rest_framework.viewsets import ModelViewSet,ReadOnlyModelViewSet
 from app.models import *
 from rest_framework.authentication import TokenAuthentication,SessionAuthentication
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -18,6 +17,8 @@ from user.serializer import *
 from app.models import *
 import random
 from user.service import send_otp
+from user.auth import CustomAuthentication,IsAuthAndTeacher
+from app.manager import generate_random_username
 
 def generate_otp():
     return f"{random.randint(0, 999999):06}"
@@ -78,8 +79,8 @@ class LoginVerifyView(CreateAPIView):
         else:
             try:
                 with transaction.atomic():
-                    user = User.objects.create(phone=phone, is_educator=True)
-                    token = Token.objects.create(user=user)
+                    user = User.objects.create(phone=phone, is_institute=True,username=generate_random_username(""))
+                    token = AuthToken.objects.create(user=user)
             except Exception as e:
                 return Response(
                     {"status": "false", "message": f"Failed to create user/token: {str(e)}"},
@@ -89,9 +90,33 @@ class LoginVerifyView(CreateAPIView):
         user = User.objects.get(phone=phone)
         token= AuthToken.objects.select_related("user").get(user = user)
         serialized_token = AuthTokenSerializer(token)
-
+        otp_instance.delete()
         return Response({
             "status": "true",
             "message": "Login successful",
             "data": serialized_token.data
+        })
+    
+
+class CompleteSignupView(UpdateAPIView):
+    serializer_class = CompleteSignupSerializer
+    authentication_classes = [CustomAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        new_name = serializer.validated_data.get("name")
+        if new_name:
+            user.username = self.generate_random_username(new_name)
+        serializer.save()
+
+        return Response({
+            "status": "true",
+            "message": "Profile updated successfully",
+            "data": serializer.data
         })

@@ -7,12 +7,17 @@ from app.Bunny import TusFileUploader
 from django.db import transaction
 from app.TestSeries import TestSeriesExtractor
 from app.Cloudfare import CloudfareSdk
+from django.contrib.auth.models import AbstractBaseUser,AbstractUser
+from django.contrib.auth.base_user import BaseUserManager
+import unicodedata
+import binascii
+import os
 
 
 class User(models.Model):
     name = models.CharField(max_length=150)
     username = models.CharField(unique=True, max_length=100, blank=True, null=True)
-    email = models.CharField(unique=True, max_length=100)
+    email = models.CharField(unique=True, max_length=100,blank=True,null=True)
     password = models.CharField(max_length=400)
     phone = models.CharField(unique=True, max_length=10)
     state = models.CharField(max_length=100, blank=True, null=True)
@@ -23,6 +28,22 @@ class User(models.Model):
     is_active = models.BooleanField(default=True)
     image = models.ImageField(storage=BunnyStorage(), blank=True, null=True)
     is_institute = models.BooleanField(default=False)
+
+    @classmethod
+    def normalize_username(cls, username):
+        return (
+            unicodedata.normalize("NFKC", username)
+            if isinstance(username, str)
+            else username
+        )
+    
+    @property
+    def is_authenticated(self):
+        """
+        Always return True. This is a way to tell if the user has been
+        authenticated in templates.
+        """
+        return True
 
     def createFileImage(self):
         """
@@ -55,8 +76,19 @@ class AuthToken(models.Model):
     created = models.DateTimeField(default=timezone.now())
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
     def __str__(self):
         return self.key
+    
+
 
     class Meta:
         managed = True

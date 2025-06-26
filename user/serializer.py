@@ -1,7 +1,7 @@
 from rest_framework import serializers 
 import re
 from django.core.validators import RegexValidator
-from app.models import Otp,AuthToken
+from app.models import Otp,AuthToken,User
 
 class AuthSerializer(serializers.Serializer):
     phone = serializers.CharField(
@@ -14,7 +14,6 @@ class AuthSerializer(serializers.Serializer):
             )
         ]
     )
-
 
 class OTPSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,3 +47,9 @@ class AuthTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuthToken
         fields = "__all__"
+
+
+class CompleteSignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email","name"]

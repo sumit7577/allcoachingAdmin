@@ -288,3 +288,7 @@ JAZZMIN_SETTINGS = {
 
 SMS_API_URL = "https://www.fast2sms.com/dev/bulkV2"
 SMS_API_KEY = "blwRVFk8yu6cAS2dmt5X9IjQ0reDoYfHJ7vh4ai3UnxzpKgOsPxb0umhZ5CXE6Lf2e4WykJPMNQRUpA7"
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'user.service.custom_exception_handler',
+}
