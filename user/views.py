@@ -82,6 +82,7 @@ class LoginVerifyView(CreateAPIView):
                 with transaction.atomic():
                     user = User.objects.create(phone=phone, is_institute=True,username=generate_random_username(""))
                     token = AuthToken.objects.create(user=user)
+                    ins = Institute.objects.create(user=user)
                     user_created = True
             except Exception as e:
                 return Response(
