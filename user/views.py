@@ -71,7 +71,7 @@ class LoginVerifyView(CreateAPIView):
         user = User.objects.filter(phone=phone).first()
 
         if user:
-            if not getattr(user, "is_educator", False):
+            if not getattr(user, "is_institute", False):
                 return Response(
                     {"status": "false", "message": "Only educators are allowed to log in."},
                     status=status.HTTP_403_FORBIDDEN
