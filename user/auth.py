@@ -78,9 +78,11 @@ class CustomAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         return self.keyword
 
+
 class IsAuthAndTeacher(BasePermission):
     """
-    Allows access only to authenticated users.
+    Allows access only to authenticated users who are marked as institute (teacher).
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated)
+        user = request.user
+        return bool(user and user.is_authenticated and getattr(user, 'is_institute', False))

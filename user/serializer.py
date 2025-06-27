@@ -47,6 +47,7 @@ class AuthTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuthToken
         fields = "__all__"
+        depth = 1
 
 
 class CompleteSignupSerializer(serializers.ModelSerializer):
