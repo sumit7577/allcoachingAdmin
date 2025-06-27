@@ -69,6 +69,7 @@ class LoginVerifyView(CreateAPIView):
             )
         
         user = User.objects.filter(phone=phone).first()
+        user_created = False
 
         if user:
             if not getattr(user, "is_institute", False):
@@ -81,6 +82,7 @@ class LoginVerifyView(CreateAPIView):
                 with transaction.atomic():
                     user = User.objects.create(phone=phone, is_institute=True,username=generate_random_username(""))
                     token = AuthToken.objects.create(user=user)
+                    user_created = True
             except Exception as e:
                 return Response(
                     {"status": "false", "message": f"Failed to create user/token: {str(e)}"},
@@ -93,7 +95,7 @@ class LoginVerifyView(CreateAPIView):
         otp_instance.delete()
         return Response({
             "status": "true",
-            "message": "Login successful",
+            "message": "No user found" if user_created else "Login successful",
             "data": serialized_token.data
         })
     
