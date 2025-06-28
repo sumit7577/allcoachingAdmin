@@ -4,6 +4,7 @@ from rest_framework.generics import CreateAPIView,UpdateAPIView,GenericAPIView
 from institute.serializer import InstituteSerialzier
 from rest_framework.authentication import SessionAuthentication
 from app.models import Institute
+from rest_framework.response import Response
 
 # Create your views here.
 class InstituteViews(UpdateAPIView):
