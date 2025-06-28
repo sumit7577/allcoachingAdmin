@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-9c(jr$uwf3@ql*c++=_)sfaj952l7!5z_@mu6=*zo6c1bq8nxa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+INTERNAL_IPS = ('127.0.0.1')
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ["*"]
@@ -37,6 +39,7 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
+    "debug_toolbar",
     "corsheaders",
     'rest_framework',
     'jazzmin',
@@ -61,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'allcoaching.urls'

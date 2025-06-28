@@ -5,6 +5,7 @@ from institute.serializer import InstituteSerialzier,InstituteReadSerializer
 from rest_framework.authentication import SessionAuthentication
 from app.models import Institute
 from rest_framework.response import Response
+from django.db.models import Count 
 
 # Create your views here.
 class InstituteViews(RetrieveUpdateAPIView):
@@ -13,7 +14,7 @@ class InstituteViews(RetrieveUpdateAPIView):
     permission_classes = [IsAuthAndTeacher]
 
     def get_object(self):
-        institute,created = Institute.objects.get_or_create(user = self.request.user)
+        institute, created = Institute.objects.select_related("user", "category", "banner").annotate(follower_count=Count('users')).get_or_create(user=self.request.user)
         return institute
     
     def retrieve(self, request, *args, **kwargs):
@@ -24,7 +25,6 @@ class InstituteViews(RetrieveUpdateAPIView):
             "message": "Institute fetched successfully",
             "data": serializer.data
         })
-
 
     def update(self, request, *args, **kwargs):
         ins = self.get_object()

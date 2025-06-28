@@ -35,10 +35,8 @@ class InstituteSerialzier(ModelSerializer):
             "date_updated",
         )
     
-
-
 class InstituteReadSerializer(ModelSerializer):
-    follower_count = serializers.SerializerMethodField()
+    follower_count = serializers.IntegerField(read_only=True)
     class Meta:
         depth = 1
         model = Institute
@@ -62,6 +60,3 @@ class InstituteReadSerializer(ModelSerializer):
             "date_created",
             "date_updated",
         )
-
-    def get_follower_count(self, obj):
-        return obj.users.count()
