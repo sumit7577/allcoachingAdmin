@@ -115,7 +115,7 @@ class CompleteSignupView(UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         new_name = serializer.validated_data.get("name")
         if new_name:
-            user.username = self.generate_random_username(new_name)
+            user.username = generate_random_username(new_name)
         serializer.save()
 
         return Response({
