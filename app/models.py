@@ -252,7 +252,6 @@ class Course(models.Model):
         """
         Override the save method to set the BunnyStorage dynamically.
         """
-
         if self.pk:
             previous = Course.objects.filter(pk=self.pk).values("image").first()
             if previous and previous["image"] != self.image.name:

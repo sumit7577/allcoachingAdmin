@@ -15,7 +15,7 @@ class CloudfareSdk():
 
     
     def createLiveInput(self,name:str):
-        data = data = {
+        data = {
             "meta": {
                 "name": name
             },
