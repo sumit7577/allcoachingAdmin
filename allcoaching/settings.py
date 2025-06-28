@@ -39,7 +39,6 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
-    "debug_toolbar",
     "corsheaders",
     'rest_framework',
     'jazzmin',
@@ -64,7 +63,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'allcoaching.urls'
