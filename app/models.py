@@ -232,6 +232,9 @@ class Course(models.Model):
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
+    start_date = models.DateField(default=timezone.now())
+    end_date = models.DateField(default=timezone.now())
+    faqs = models.JSONField(default={})
 
     def createFileImage(self):
         """
