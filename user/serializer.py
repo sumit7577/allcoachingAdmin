@@ -49,7 +49,11 @@ class AuthTokenSerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 1
 
-
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        
 class CompleteSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

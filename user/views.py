@@ -116,10 +116,11 @@ class CompleteSignupView(UpdateAPIView):
         new_name = serializer.validated_data.get("name")
         if new_name:
             user.username = generate_random_username(new_name)
+        response = UserSerializer(user)
         serializer.save()
 
         return Response({
             "status": "true",
             "message": "Profile updated successfully",
-            "data": serializer.data
+            "data": response.data
         })
