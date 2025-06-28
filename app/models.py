@@ -62,7 +62,7 @@ class User(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name or self.email or f"User {self.pk}"
+        return self.username
     
 
     class Meta:
