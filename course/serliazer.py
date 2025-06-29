@@ -96,4 +96,31 @@ class CourseTestSeriesReadSerializer(serializers.ModelSerializer):
             "updated_at"
         )
         depth = 1
+
+
+class CourseDocumentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documents
+        fields = "__all__"
+        read_only_fields=(
+            'id',
+            "created_at",
+            "updated_at",
+            "course",
+        )
+
+
+class CourseDocumentsReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documents
+        depth = 1
+        fields = (
+            "id",
+            "playlist",
+            "name",
+            "description",
+            "file",
+            "created_at",
+            "updated_at"
+        )
         
