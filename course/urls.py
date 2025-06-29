@@ -1,0 +1,12 @@
+from course import views
+from django.urls import include, path, re_path
+
+
+urlpatterns = [
+    path("", views.CourseView.as_view(), name="institute-course"),
+    path("<int:pk>/", views.CourseUpdateView.as_view(), name="institute-course-update"),
+    path("<int:pk>/videos/", views.CourseVideosView.as_view(), name="institute-course-videos"),
+    path("<int:pk>/videos/<int:video>/", views.CourseVideosUpdateView.as_view(), name="institute-course-videos-update"),
+    path("<int:pk>/testSeries/", views.CourseTestSeriesView.as_view(), name="institute-course-testSeries"),
+    path("<int:pk>/testSeries/<int:test>/", views.CourseTestSeriesUpdateView.as_view(), name="institute-course-test-update"),
+]

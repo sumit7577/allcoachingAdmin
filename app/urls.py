@@ -7,5 +7,6 @@ urlpatterns = [
     path("webhook-video/",views.WebhookVideo.as_view()),
     path('v1/educator/login/', include('user.urls')),
     path('v1/educator/institute/', include('institute.urls')),
+    path('v1/educator/course/', include('course.urls')),
     #path("webhook-livestream/",views.UploadLiveStream.as_view()),
 ]

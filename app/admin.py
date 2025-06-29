@@ -30,7 +30,14 @@ class TestSeriesAttemptAdmin(admin.ModelAdmin):
     list_filter = ("test_series",)
 
 
+class AuthTokenAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "created", "last_login")
+    search_fields = ("user__username", "user__email")
+    list_filter = ("created", "last_login")
 
+    def last_login(self, obj):
+        return obj.user.last_login.strftime("%Y-%m-%d %H:%M:%S") if obj.user.last_login else None
+    
 # Register the model with the custom admin class
 admin.site.register(CourseVideos, CourseVideoAdmin)
 admin.site.register(AuthToken)

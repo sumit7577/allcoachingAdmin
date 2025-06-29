@@ -309,7 +309,8 @@ class CourseVideos(models.Model):
         """
         Override the save method to set the BunnyStorage dynamically.
         """
-        self.video.storage = TusFileUploader(instance=self)
+        if self.video:
+            self.video.storage = TusFileUploader(instance=self)
         super().save(*args, **kwargs)
 
     def __str__(self):

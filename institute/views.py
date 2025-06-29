@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from user.auth import CustomAuthentication,IsAuthAndTeacher
-from rest_framework.generics import CreateAPIView,UpdateAPIView,GenericAPIView,RetrieveUpdateAPIView
-from institute.serializer import InstituteSerialzier,InstituteReadSerializer
+from rest_framework.generics import *
+from institute.serializer import *
 from rest_framework.authentication import SessionAuthentication
-from app.models import Institute
+from app.models import Institute,Course,Category
 from rest_framework.response import Response
 from django.db.models import Count 
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 class InstituteViews(RetrieveUpdateAPIView):
@@ -37,3 +38,23 @@ class InstituteViews(RetrieveUpdateAPIView):
             "message": "Profile updated successfully",
             "data": serializer.data
         })
+
+
+class InstituteCategoryViews(ListCreateAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CategorySerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        return Category.objects.all().order_by("name")
+    
+
+class InstituteFreeContentViews(ListAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CourseReadSerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,price=0).order_by("-created_at")
