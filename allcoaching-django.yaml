@@ -8,3 +8,7 @@ services:
       context: .
     ports:
       - "8000:8000"
+    environment:
+      VIRTUAL_HOST: api.allcoaching.in
+      LETSENCRYPT_HOST: api.allcoaching.in
+      LETSENCRYPT_EMAIL: asmitkumarr082@gmail.com
