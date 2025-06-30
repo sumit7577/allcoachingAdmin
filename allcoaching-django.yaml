@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   allcoaching_go:
     container_name: allcoaching_admin
@@ -6,9 +7,11 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"  # expose to the internal proxy only (not ports)
     environment:
-      VIRTUAL_HOST: api.allcoaching.in
-      LETSENCRYPT_HOST: api.allcoaching.in
-      LETSENCRYPT_EMAIL: asmitkumarr082@gmail.com
+      - VIRTUAL_HOST=api.allcoaching.in
+      - LETSENCRYPT_HOST=api.allcoaching.in
+      - LETSENCRYPT_EMAIL=asmitkumarr082@gmail.com
+    networks:
+      - nginx-proxy
