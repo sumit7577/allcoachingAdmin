@@ -11,6 +11,7 @@ services:
       - "8000"  # expose to the internal proxy only (not ports)
     environment:
       - VIRTUAL_HOST=api.allcoaching.in
+      - VIRTUAL_PORT=8000 
       - LETSENCRYPT_HOST=api.allcoaching.in
       - LETSENCRYPT_EMAIL=asmitkumarr082@gmail.com
     networks:
