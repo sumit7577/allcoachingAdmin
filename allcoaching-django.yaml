@@ -7,8 +7,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-    expose:
-      - "8000"  # expose to the internal proxy only (not ports)
+    ports:
+      - "8000:8000"
     environment:
       - VIRTUAL_HOST=api.allcoaching.in
       - VIRTUAL_PORT=8000 
