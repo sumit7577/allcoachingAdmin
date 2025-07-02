@@ -9,15 +9,12 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"  # expose internally only (not to host)
+
+    ports:
+      - "8000:8000"
     environment:
       - VIRTUAL_HOST=api.allcoaching.in
       - LETSENCRYPT_HOST=api.allcoaching.in
       - LETSENCRYPT_EMAIL=asmitkumarr082@gmail.com
     networks:
       - nginx_network
-
-
-networks:
-  default:
-    name: nginx_network
-    external: true
