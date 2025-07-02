@@ -10,7 +10,7 @@ services:
     expose:
       - "80"  # expose internally only (not to host)
     ports:
-      - "80:80"
+      - "8000:80"
     environment:
       - VIRTUAL_HOST=api.allcoaching.in
       - VIRTUAL_PORT=80  # optional, only if app runs on different port internally

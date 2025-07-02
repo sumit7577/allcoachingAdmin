@@ -20,11 +20,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose port 8000 for Django
-EXPOSE 80
+EXPOSE 8000
 
 # Install Gunicorn in the container
 RUN pip install gunicorn
 
 
 # Run the Django development server (you can change it for production later)
-CMD ["gunicorn", "--workers", "3", "--timeout", "10000", "--worker-class", "gthread", "--threads", "3", "--bind", "0.0.0.0:80", "allcoaching.wsgi:application"]
+CMD ["gunicorn", "--workers", "3", "--timeout", "10000", "--worker-class", "gthread", "--threads", "3", "--bind", "0.0.0.0:8000", "allcoaching.wsgi:application"]
