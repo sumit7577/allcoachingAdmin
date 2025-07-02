@@ -16,7 +16,8 @@ services:
     networks:
       - nginx_network
 
+
 networks:
   default:
-    external:
-      name: nginx_network
+    name: nginx_network
+    external: true
