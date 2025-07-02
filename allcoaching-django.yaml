@@ -9,6 +9,8 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"  # expose internally only (not to host)
+    ports:
+      - "8000:8000"
     environment:
       - VIRTUAL_HOST=api.allcoaching.in
       - VIRTUAL_PORT=8000  # optional, only if app runs on different port internally
