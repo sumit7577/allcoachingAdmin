@@ -200,7 +200,7 @@ class Institute(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return f"{self.user.username} of {self.name}"
 
     class Meta:
         managed = True
