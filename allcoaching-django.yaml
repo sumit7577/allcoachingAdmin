@@ -15,3 +15,6 @@ services:
       - LETSENCRYPT_EMAIL=asmitkumarr082@gmail.com
     networks:
       - nginx_network
+
+networks:
+  nginx_network:
