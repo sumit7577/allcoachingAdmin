@@ -227,3 +227,64 @@ class CourseDocumentUpdateView(RetrieveUpdateDestroyAPIView):
         course_id = self.kwargs.get("pk") # This should be the ID of the Course
         doc_id = self.kwargs.get("document")
         return Documents.objects.select_related("playlist").filter(course__institute__user=self.request.user,id=doc_id)
+    
+
+class CourseScheduleView(ListCreateAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CourseScheduleSerializer
+
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = CourseScheduleReadSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def perform_create(self, serializer):
+        # Get the course_id from URL kwargs (e.g., from /courses/<int:course_pk>/videos/)
+        course_id = self.kwargs.get("pk")
+
+        if not course_id:
+            # This should ideally be caught by URL routing or permissions,
+            # but as a safeguard.
+            raise serializers.ValidationError({"detail": "Course ID not provided in URL."})
+
+        # Ensure the course exists and belongs to the authenticated user's institute
+        # before associating the video with it.
+        try:
+            course = get_object_or_404(
+                Course,
+                id=course_id,
+                institute__user=self.request.user
+            )
+        except Course.DoesNotExist:
+            raise serializers.ValidationError({"course": "Course with this ID does not exist or you do not have permission to add videos to it."})
+
+        serializer.save(course=course)
+
+    def get_queryset(self):
+        self.pk = self.kwargs.get("pk")
+        return Schedule.objects.filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-created_at")
+    
+
+class CourseSchedulesUpdateView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CourseScheduleSerializer
+    lookup_url_kwarg = "schedule"
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = CourseScheduleReadSerializer(instance)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        course_id = self.kwargs.get("pk") # This should be the ID of the Course
+        schedule_id = self.kwargs.get("schedule")
+        return Schedule.objects.filter(course__institute__user=self.request.user,id=schedule_id)

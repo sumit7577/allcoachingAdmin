@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Course,CourseVideos,TestSeries,Documents
+from app.models import Course,CourseVideos,TestSeries,Documents,Schedule
 
 
 class CourseReadSerializer(serializers.ModelSerializer):
@@ -123,4 +123,20 @@ class CourseDocumentsReadSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at"
         )
-        
+
+class CourseScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = "__all__"
+        read_only_fields=(
+            'id',
+            "created_at",
+            "updated_at",
+            "course",
+        )
+
+
+class CourseScheduleReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = "__all__"
