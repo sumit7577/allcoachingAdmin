@@ -32,6 +32,13 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://educator.allcoaching.in",
+    "http://155.248.254.181:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'user.service.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

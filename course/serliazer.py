@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Course,CourseVideos,TestSeries,Documents,Schedule
+from app.models import Course,CourseVideos,TestSeries,Documents,Schedule,TestSeriesSolution
 
 
 class CourseReadSerializer(serializers.ModelSerializer):
@@ -69,6 +69,12 @@ class CourseVideosReadSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class TestSeriesSolutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestSeriesSolution
+        fields = ("id", "description", "solution", "created_at", "updated_at")
+
+
 class CourseTestSeriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestSeries
@@ -82,6 +88,7 @@ class CourseTestSeriesSerializer(serializers.ModelSerializer):
 
 
 class CourseTestSeriesReadSerializer(serializers.ModelSerializer):
+    solution = serializers.SerializerMethodField()
     class Meta:
         model = TestSeries
         fields = (
@@ -91,6 +98,27 @@ class CourseTestSeriesReadSerializer(serializers.ModelSerializer):
             "playlist",
             "description",
             "questions",
+            "solution",
+            "timer",
+            "created_at",
+            "updated_at"
+        )
+        depth = 1
+
+    def get_solution(self, obj):
+        solution_qs = TestSeriesSolution.objects.filter(test_series=obj)
+        return TestSeriesSolutionSerializer(solution_qs, many=True).data
+    
+
+class CourseTestSeriesReadOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestSeries
+        fields = (
+            "id",
+            "name",
+            "file",
+            "playlist",
+            "description",
             "timer",
             "created_at",
             "updated_at"

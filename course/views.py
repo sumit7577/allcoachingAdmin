@@ -117,7 +117,7 @@ class CourseTestSeriesView(ListCreateAPIView):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = CourseTestSeriesReadSerializer(page, many=True)
+            serializer = CourseTestSeriesReadOnlySerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
@@ -153,7 +153,7 @@ class CourseTestSeriesView(ListCreateAPIView):
 class CourseTestSeriesUpdateView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthAndTeacher]
-    serializer_class = CourseVideosSerializer
+    serializer_class = CourseTestSeriesSerializer
     lookup_url_kwarg = "test"
 
     def retrieve(self, request, *args, **kwargs):
