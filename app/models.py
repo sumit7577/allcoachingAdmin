@@ -423,8 +423,10 @@ class TestSeries(models.Model):
         if is_new and self.file:
             self.file.storage = BunnyStorage(self.createDocDir())  # Set correct storage path
 
+        if self.questions:
+            super().save(*args,**kwargs)
         
-        if self.file and is_new:
+        if self.file and is_new and not self.questions:
             latest_id = TestSeries.objects.order_by('-id').first()
             next_id = latest_id.id + 1 if latest_id else 1
             

@@ -1,7 +1,6 @@
 from course import views
 from django.urls import include, path, re_path
 
-
 urlpatterns = [
     path("", views.CourseView.as_view(), name="institute-course"),
     path("<int:pk>/", views.CourseUpdateView.as_view(), name="institute-course-update"),
