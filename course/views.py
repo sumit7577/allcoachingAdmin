@@ -318,12 +318,19 @@ class CourseBannerCreateView(ListCreateAPIView):
 
         if not images:
             return Response({"error": "No images provided."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        course_id = self.kwargs.get("pk")
+        try:
+            course = Course.objects.get(id=course_id, institute__user=request.user)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found or access denied."}, status=status.HTTP_404_NOT_FOUND)
 
         banners = []
         for idx, image in enumerate(images):
             title = titles[idx] if idx < len(titles) else f"Banner {idx + 1}"
             banner = Banner.objects.create(title=title, image=image)
             banners.append(banner)
+        course.banners.add(*banners)
 
         serializer = self.get_serializer(banners, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
