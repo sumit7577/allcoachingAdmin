@@ -222,7 +222,7 @@ class Course(models.Model):
     name = models.CharField(max_length=150)
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, blank=True, related_name='course_users',verbose_name="Enrolled Users")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True,blank=True)
     banners = models.ManyToManyField(Banner, blank=True)
     collection = models.JSONField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)

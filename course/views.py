@@ -4,8 +4,9 @@ from rest_framework.generics import *
 from course.serliazer import *
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Count
-from app.models import Course,CourseVideos,TestSeries,Documents
+from app.models import Course,CourseVideos, Institute,TestSeries,Documents,Banner
 from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 class CourseView(ListCreateAPIView):
@@ -24,6 +25,11 @@ class CourseView(ListCreateAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    def perform_create(self, serializer):
+        institute = get_object_or_404(Institute, user=self.request.user)
+        serializer.save(institute=institute)
+
 
     def get_queryset(self):
         return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,price__gt=0).order_by("-created_at")
@@ -288,3 +294,40 @@ class CourseSchedulesUpdateView(RetrieveUpdateDestroyAPIView):
         course_id = self.kwargs.get("pk") # This should be the ID of the Course
         schedule_id = self.kwargs.get("schedule")
         return Schedule.objects.filter(course__institute__user=self.request.user,id=schedule_id)
+
+
+class CourseBannerCreateView(ListCreateAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = BannerSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = BannerSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        images = request.FILES.getlist("images")
+        titles = request.data.getlist("titles")
+
+        if not images:
+            return Response({"error": "No images provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        banners = []
+        for idx, image in enumerate(images):
+            title = titles[idx] if idx < len(titles) else f"Banner {idx + 1}"
+            banner = Banner.objects.create(title=title, image=image)
+            banners.append(banner)
+
+        serializer = self.get_serializer(banners, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get_queryset(self):
+        self.pk = self.kwargs.get("pk")
+        return Banner.objects.filter(course__id=self.pk, course__institute__user=self.request.user).order_by("-date_created")
