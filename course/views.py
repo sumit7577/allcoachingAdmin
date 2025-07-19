@@ -132,7 +132,7 @@ class CourseVideosCommentView(ListAPIView):
     def get_queryset(self):
         course_id = self.kwargs.get("pk") # This should be the ID of the Course
         video_id = self.kwargs.get("video")
-        return VideoComment.objects.select_related("user").filter(video__course__institute__user=self.request.user,id=video_id)
+        return VideoComment.objects.select_related("user").filter(video__course__institute__user=self.request.user,video__id=video_id)
     
 
 class CourseTestSeriesView(ListCreateAPIView):
