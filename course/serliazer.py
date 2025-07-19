@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Course,CourseVideos,TestSeries,Documents,Schedule,TestSeriesSolution,Banner
+from app.models import Course,CourseVideos,TestSeries,Documents,Schedule,TestSeriesSolution,Banner,VideoComment
 
 
 class CourseReadSerializer(serializers.ModelSerializer):
@@ -68,6 +68,39 @@ class CourseVideosReadSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
+
+class CourseVideosCommentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoComment
+        fields = "__all__"
+        read_only_fields = (
+            'id',
+            "created_at",
+            "updated_at",
+            "video",
+            "user"
+        )
+
+
+class CourseVideosCommentReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoComment
+        fields = (
+            "id",
+            "user",
+            "comment",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            'id',
+            "created_at",
+            "updated_at",
+            "video",
+            "user"
+        )
+        depth =1
+    
 
 class TestSeriesSolutionSerializer(serializers.ModelSerializer):
     class Meta:

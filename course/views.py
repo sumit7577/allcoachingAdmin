@@ -4,7 +4,7 @@ from rest_framework.generics import *
 from course.serliazer import *
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Count
-from app.models import Course,CourseVideos, Institute,TestSeries,Documents,Banner
+from app.models import Course,CourseVideos, Institute,TestSeries,Documents,Banner,VideoComment
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -111,6 +111,29 @@ class CourseVideosUpdateView(RetrieveUpdateDestroyAPIView):
         return CourseVideos.objects.select_related("playlist").filter(course__institute__user=self.request.user,id=video_id)
     
 
+class CourseVideosCommentView(ListAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CourseVideosCommentsSerializer
+    lookup_url_kwarg = "video"
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = CourseVideosCommentReadSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    
+    def get_queryset(self):
+        course_id = self.kwargs.get("pk") # This should be the ID of the Course
+        video_id = self.kwargs.get("video")
+        return VideoComment.objects.select_related("user").filter(video__course__institute__user=self.request.user,id=video_id)
+    
 
 class CourseTestSeriesView(ListCreateAPIView):
     authentication_classes = [CustomAuthentication]
