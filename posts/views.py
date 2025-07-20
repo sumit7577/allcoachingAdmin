@@ -3,7 +3,7 @@ from user.auth import CustomAuthentication,IsAuthAndTeacher
 from rest_framework.generics import *
 from posts.serializer import *
 from rest_framework.pagination import PageNumberPagination
-from app.models import CommunityPost
+from app.models import CommunityPost,CommunityComment,CommunityLike
 from rest_framework.response import Response
 
 # Create your views here.
@@ -50,3 +50,86 @@ class PostsUpdateView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
         return CommunityPost.objects.filter(institute__user=self.request.user,id=self.pk).order_by("-created_at")
+
+
+class PostsCommentView(ListAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = PostsSerializer
+    pagination_class = PageNumberPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = PostsCommentReadSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        self.pk = self.kwargs.get("pk")
+        return CommunityComment.objects.filter(post__institute__user=self.request.user,post__id=self.pk).order_by("-created_at")
+    
+
+class PostsCommentUpdateView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = PostsCommentSerializer
+    lookup_url_kwarg = "comment"
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PostsCommentReadSerializer(instance)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        post_id = self.kwargs.get("pk")
+        post_comment_id = self.kwargs.get("comment")
+        return CommunityComment.objects.filter(post__institute__user=self.request.user,id=post_comment_id).order_by("-created_at")
+    
+
+
+class PostsLikeView(ListAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = PostsSerializer
+    pagination_class = PageNumberPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = PostsLikeReadSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        self.pk = self.kwargs.get("pk")
+        return CommunityLike.objects.filter(post__institute__user=self.request.user,post__id=self.pk).order_by("-created_at")
+    
+
+
+class PostsLikeUpdateView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = PostsLikeSerializer
+    lookup_url_kwarg = "like"
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PostsLikeReadSerializer(instance)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        post_id = self.kwargs.get("pk")
+        post_like_id = self.kwargs.get("like")
+        return CommunityLike.objects.filter(post__institute__user=self.request.user,id=post_like_id).order_by("-created_at")
+    
+
+    
