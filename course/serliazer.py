@@ -109,6 +109,7 @@ class TestSeriesSolutionSerializer(serializers.ModelSerializer):
 
 
 class CourseTestSeriesSerializer(serializers.ModelSerializer):
+    solution = serializers.JSONField()
     class Meta:
         model = TestSeries
         fields = "__all__"

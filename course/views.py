@@ -7,6 +7,7 @@ from django.db.models import Count
 from app.models import Course,CourseVideos, Institute,TestSeries,Documents,Banner,VideoComment
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 # Create your views here.
 class CourseView(ListCreateAPIView):
@@ -152,6 +153,7 @@ class CourseTestSeriesView(ListCreateAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    @transaction.atomic
     def perform_create(self, serializer):
         # Get the course_id from URL kwargs (e.g., from /courses/<int:course_pk>/videos/)
         course_id = self.kwargs.get("pk")
@@ -171,8 +173,17 @@ class CourseTestSeriesView(ListCreateAPIView):
             )
         except Course.DoesNotExist:
             raise serializers.ValidationError({"course": "Course with this ID does not exist or you do not have permission to add videos to it."})
+        
+        validated_data = serializer.validated_data.copy()
+        
+        solutions_data = validated_data.pop("solution", None)
+        testSeries = TestSeries.objects.create(course=course, **validated_data)
 
-        serializer.save(course=course)
+        if solutions_data:
+            TestSeriesSolution.objects.create(
+                test_series=testSeries,
+                solution=solutions_data
+            )
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
