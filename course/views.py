@@ -33,7 +33,7 @@ class CourseView(ListCreateAPIView):
 
 
     def get_queryset(self):
-        return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,price__gt=0).order_by("-created_at")
+        return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,price__gt=0).order_by("-id")
     
 
 class CourseUpdateView(RetrieveUpdateDestroyAPIView):
@@ -48,7 +48,7 @@ class CourseUpdateView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,id=self.pk).order_by("-created_at")
+        return Course.objects.select_related("category").prefetch_related("banners").annotate(enrolled_count=Count("users")).filter(institute__user=self.request.user,id=self.pk)
     
 
 class CourseVideosView(ListCreateAPIView):
@@ -92,7 +92,7 @@ class CourseVideosView(ListCreateAPIView):
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return CourseVideos.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-created_at")
+        return CourseVideos.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-id")
     
 
 class CourseVideosUpdateView(RetrieveUpdateDestroyAPIView):
@@ -187,7 +187,7 @@ class CourseTestSeriesView(ListCreateAPIView):
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return TestSeries.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-created_at")
+        return TestSeries.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-id")
     
 
 class CourseTestSeriesUpdateView(RetrieveUpdateDestroyAPIView):
@@ -205,6 +205,30 @@ class CourseTestSeriesUpdateView(RetrieveUpdateDestroyAPIView):
         course_id = self.kwargs.get("pk") # This should be the ID of the Course
         test_id = self.kwargs.get("test")
         return TestSeries.objects.select_related("playlist").filter(course__institute__user=self.request.user,id=test_id)
+    
+
+class CourseTestSeriesLeaderBoardView(ListAPIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+    serializer_class = CourseTestSeriesLeaderBoardSerializer
+    lookup_url_kwarg = "test"
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        course_id = self.kwargs.get("pk") # This should be the ID of the Course
+        test_id = self.kwargs.get("test")
+        return TestSeriesAttempt.objects.select_related("user").filter(test_series__course__institute__user=self.request.user,test_series__id=test_id,submitted=True).order_by("rank")
     
 
 
@@ -249,7 +273,7 @@ class CourseDocumentsView(ListCreateAPIView):
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return Documents.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-created_at")
+        return Documents.objects.select_related("playlist").filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-id")
     
 
 class CourseDocumentUpdateView(RetrieveUpdateDestroyAPIView):
@@ -310,7 +334,7 @@ class CourseScheduleView(ListCreateAPIView):
 
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return Schedule.objects.filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-created_at")
+        return Schedule.objects.filter(course__institute__user=self.request.user,course__id=self.pk).order_by("-id")
     
 
 class CourseSchedulesUpdateView(RetrieveUpdateDestroyAPIView):
@@ -371,4 +395,4 @@ class CourseBannerCreateView(ListCreateAPIView):
     
     def get_queryset(self):
         self.pk = self.kwargs.get("pk")
-        return Banner.objects.filter(course__id=self.pk, course__institute__user=self.request.user).order_by("-date_created")
+        return Banner.objects.filter(course__id=self.pk, course__institute__user=self.request.user).order_by("-id")

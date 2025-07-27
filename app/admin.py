@@ -18,7 +18,7 @@ class TestSeriesAdmin(admin.ModelAdmin):
     list_display = ("id","name")
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("id", "username", "phone","email")
+    list_display = ("id", "username", "phone","email","is_institute")
     search_fields = ("username", "email")
 
     def last_login(self, obj):
@@ -30,21 +30,26 @@ class TestSeriesAttemptAdmin(admin.ModelAdmin):
     list_filter = ("test_series",)
 
 
-class AuthTokenAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "created", "last_login")
-    search_fields = ("user__username", "user__email")
-    list_filter = ("created", "last_login")
+class AuthTokenAdmins(admin.ModelAdmin):
+    list_display = ("key","user","created","user_is_institute")
 
-    def last_login(self, obj):
-        return obj.user.last_login.strftime("%Y-%m-%d %H:%M:%S") if obj.user.last_login else None
+    def user_is_institute(self, obj):
+        return obj.user.is_institute
+    user_is_institute.short_description = "Is Institute"
+    user_is_institute.admin_order_field = "user__is_insitute"
+
+
+class CourseAdmins(admin.ModelAdmin):
+    list_display = ("id","name","institute")
+    
     
 # Register the model with the custom admin class
 admin.site.register(CourseVideos, CourseVideoAdmin)
-admin.site.register(AuthToken)
+admin.site.register(AuthToken,AuthTokenAdmins)
 admin.site.register(User,UserAdmin)
 admin.site.register(Banner)
 admin.site.register(Category)
-admin.site.register(Course)
+admin.site.register(Course,CourseAdmins)
 admin.site.register(VideoLike)
 admin.site.register(VideoComment)
 admin.site.register(Institute)

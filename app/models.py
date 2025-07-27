@@ -396,7 +396,6 @@ class TestSeries(models.Model):
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField(default=timezone.now())
 
-
     class Meta:
         managed = True
         db_table = 'test_series'

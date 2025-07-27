@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Course,CourseVideos,TestSeries,Documents,Schedule,TestSeriesSolution,Banner,VideoComment
+from app.models import Course,CourseVideos,TestSeries,Documents,Schedule,TestSeriesSolution,Banner,VideoComment,TestSeriesAttempt
 
 
 class CourseReadSerializer(serializers.ModelSerializer):
@@ -119,6 +119,29 @@ class CourseTestSeriesSerializer(serializers.ModelSerializer):
             "updated_at",
             "course",
         )
+
+
+class CourseTestSeriesLeaderBoardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestSeriesAttempt
+        fields = (
+            "id",
+            "user",
+            "created_at",
+            "updated_at",
+            "submitted",
+            "total_score",
+            "total_marks",
+            "percentile",
+            "rank"
+        )
+        read_only_fields = (
+            'id',
+            "created_at",
+            "updated_at",
+            "course",
+        )
+        depth=1
 
 
 class CourseTestSeriesReadSerializer(serializers.ModelSerializer):

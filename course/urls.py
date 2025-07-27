@@ -10,6 +10,7 @@ urlpatterns = [
     path("<int:pk>/videos/<int:video>/comments/", views.CourseVideosCommentView.as_view(), name="institute-course-videos-comments"),
     path("<int:pk>/testSeries/", views.CourseTestSeriesView.as_view(), name="institute-course-testSeries"),
     path("<int:pk>/testSeries/<int:test>/", views.CourseTestSeriesUpdateView.as_view(), name="institute-course-test-update"),
+    path("<int:pk>/testSeries/<int:test>/leaderboard/", views.CourseTestSeriesLeaderBoardView.as_view(), name="institute-course-test-leaderboard"),
     path("<int:pk>/documents/", views.CourseDocumentsView.as_view(), name="institute-course-document"),
     path("<int:pk>/documents/<int:document>/", views.CourseDocumentUpdateView.as_view(), name="institute-course-document-update"),
     path("<int:pk>/schedules/", views.CourseScheduleView.as_view(), name="institute-course-schedules"),
