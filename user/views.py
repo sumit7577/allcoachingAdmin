@@ -69,7 +69,7 @@ class LoginVerifyView(CreateAPIView):
             )
         
         user = User.objects.filter(phone=phone).first()
-        user_created = False
+        print("user found",user)
 
         if user:
             if not getattr(user, "is_institute", False):
@@ -77,32 +77,40 @@ class LoginVerifyView(CreateAPIView):
                     {"status": "false", "message": "Only educators are allowed to log in."},
                     status=status.HTTP_403_FORBIDDEN
                 )
+            else:
+                token,created = AuthToken.objects.select_related("user").get_or_create(user = user)
+                print(token,user,created)
+                serialized_token = AuthTokenSerializer(token)
+                otp_instance.delete()
+                return Response({
+                    "status": "true",
+                    "message": "Login successful",
+                    "data": serialized_token.data
+        })
         else:
             try:
                 with transaction.atomic():
                     user = User.objects.create(phone=phone, is_institute=True,username=generate_random_username(""))
                     token = AuthToken.objects.create(user=user)
-                    user_created = True
+                    Institute.objects.create(user=user,name=user.username,director_name=user.username)
+                    serialized_token = AuthTokenSerializer(token)
+                    otp_instance.delete()
+                    return Response({
+                        "status": "true",
+                        "message": "No user found",
+                        "data": serialized_token.data
+                    })
             except Exception as e:
                 return Response(
                     {"status": "false", "message": f"Failed to create user/token: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-
-        user = User.objects.get(phone=phone)
-        token= AuthToken.objects.select_related("user").get(user = user)
-        serialized_token = AuthTokenSerializer(token)
-        otp_instance.delete()
-        return Response({
-            "status": "true",
-            "message": "No user found" if user_created else "Login successful",
-            "data": serialized_token.data
-        })
+        
     
 
 class CompleteSignupView(UpdateAPIView):
     serializer_class = CompleteSignupSerializer
-    authentication_classes = [CustomAuthentication, SessionAuthentication]
+    authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthAndTeacher]
 
     def get_object(self):

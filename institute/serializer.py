@@ -47,7 +47,6 @@ class InstituteSerialzier(ModelSerializer):
             'about',
             'director_name',
             'image',
-            'user',
             'category',
             'banner',
             'date_created',
@@ -85,3 +84,6 @@ class InstituteReadSerializer(ModelSerializer):
             "date_created",
             "date_updated",
         )
+
+class InstiuteLinkAccountSerializer(serializers.Serializer):
+    pass
