@@ -74,6 +74,8 @@ class InstituteReadSerializer(ModelSerializer):
             'category',
             'banner',
             'follower_count',
+            "account_detail",
+            "account_link",
             'date_created',
             'date_updated',
         )
@@ -83,7 +85,15 @@ class InstituteReadSerializer(ModelSerializer):
             "follower_count",
             "date_created",
             "date_updated",
+            "account_detail",
+            "account_link",
         )
 
 class InstiuteLinkAccountSerializer(serializers.Serializer):
     pass
+
+
+class BankAccountSerializer(serializers.Serializer):
+    account_number = serializers.CharField()
+    ifsc_code = serializers.CharField()
+    beneficiary_name = serializers.CharField()

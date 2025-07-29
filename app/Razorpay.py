@@ -15,9 +15,12 @@ class RazorPay:
             "Content-Type": "application/json"
         })
 
-    def makeRequest(self):
+    def makeRequest(self,method:str = "post"):
         try:
-            response = self.session.post(self.url, data=json.dumps(self.payload))
+            if method == "patch":
+                response = self.session.patch(self.url, data=json.dumps(self.payload))
+            else:
+                response = self.session.post(self.url, data=json.dumps(self.payload))
             response.raise_for_status()
             return {"status":True,"data":response.json()}
         except requests.RequestException as e:

@@ -175,13 +175,15 @@ class Institute(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    banner = models.ForeignKey(Banner,on_delete=models.CASCADE)
+    banner = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
     director_name = models.CharField(max_length=150)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     users = models.ManyToManyField(User, blank=True, related_name='institute_users',verbose_name="Followers")
     date_created = models.DateTimeField(default=timezone.now())
     date_updated = models.DateTimeField(default=timezone.now())
     image = models.ImageField(storage=BunnyStorage(), null=True, blank=True)
+    account_link = models.JSONField(null=True,blank=True)
+    account_detail = models.JSONField(null=True,blank=True)
 
     def createFileImage(self):
         """
@@ -195,7 +197,10 @@ class Institute(models.Model):
         """
         if not self._state.adding:  # Ensures that 'id' is available
             directory = self.createFileImage()
-            self.image.storage = BunnyStorage(directory)
+            if self.image:
+                self.image.storage = BunnyStorage(directory)
+            if self.banner:
+                self.banner.storage = BunnyStorage(f"{directory}banner/")
 
         super().save(*args, **kwargs)
 

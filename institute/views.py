@@ -27,7 +27,7 @@ class InstituteViews(RetrieveUpdateAPIView):
         return Response(serializer.data)
 
     def get_queryset(self):
-        return Institute.objects.select_related("user", "category", "banner")\
+        return Institute.objects.select_related("user", "category")\
                 .annotate(follower_count=Count("users"))\
                 .filter(user=self.request.user).first()
     
@@ -85,5 +85,62 @@ class InstituteLinkAccount(APIView):
         razorpay = RazorPay("https://api.razorpay.com/v2/accounts", payload=payload)
         response = razorpay.makeRequest()
         if(response.get("status")):
-            pass
-        return Response({"success": True, "razorpay_response": response}, status=status.HTTP_201_CREATED)
+            institute.account_link = response.get("data")
+            institute.save()
+            return Response({"success": True, "data": response.get("data")}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": False, "message": response.get("error")}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class InstituteVerifyAccount(APIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+
+    def post(self, request, *args, **kwargs):
+        institute = get_object_or_404(Institute, user=request.user)
+
+        payload = {
+            "product_name":"route",
+            "tnc_accepted":True,
+        }
+
+        razorpay = RazorPay(f"https://api.razorpay.com/v2/accounts/{institute.account_link.get("id")}/products/", payload=payload)
+        response = razorpay.makeRequest()
+        if(response.get("status")):
+            institute.account_detail = response.get("data")
+            institute.save()
+            return Response({"success": True, "data": response.get("data")}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": False, "message": response.get("error")}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class InstituteAddBankAccount(APIView):
+    authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthAndTeacher]
+
+    def post(self, request, *args, **kwargs):
+        institute = get_object_or_404(Institute, user=request.user)
+        serializer = BankAccountSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        data = serializer.validated_data
+
+        payload = {
+            "tnc_accepted": True,
+            "settlements":{
+                "account_number": data["account_number"],
+                "ifsc_code": data["ifsc_code"],
+                "beneficiary_name": data["beneficiary_name"],
+            },
+        }
+
+        razorpay = RazorPay(f"https://api.razorpay.com/v2/accounts/{institute.account_link.get("id")}/products/{institute.account_detail.get("id")}", payload=payload)
+        response = razorpay.makeRequest(method="patch")
+        if(response.get("status")):
+            institute.account_detail = response.get("data")
+            institute.save()
+            return Response({"success": True, "data": response.get("data")}, status=status.HTTP_201_CREATED)
+        else:
+            print(response)
+            return Response({"success": False, "message": response.get("error")}, status=status.HTTP_400_BAD_REQUEST)
