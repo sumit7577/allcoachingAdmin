@@ -34,7 +34,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://educator-allcoaching.b-cdn.net",
 ]
 
-ALLOWED_HOSTS = ["educator-allcoaching.b-cdn.net"]
+ALLOWED_HOSTS = [
+    "educator-allcoaching.b-cdn.net",
+    "educator.allcoaching.in"
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://educator-allcoaching.b-cdn.net",
