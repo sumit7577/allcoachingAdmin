@@ -24,19 +24,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9c(jr$uwf3@ql*c++=_)sfaj952l7!5z_@mu6=*zo6c1bq8nxa'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 INTERNAL_IPS = ('127.0.0.1')
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
-ALLOWED_HOSTS = ["*"]
+CORS_ALLOWED_ORIGINS = [
+    "https://educator-allcoaching.b-cdn.net",
+]
+
+ALLOWED_HOSTS = ["educator-allcoaching.b-cdn.net"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://educator.allcoaching.in",
-    "http://155.248.254.181:8000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
+    "https://educator-allcoaching.b-cdn.net",
 ]
 
 REST_FRAMEWORK = {
