@@ -32,6 +32,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     "https://educator-allcoaching.b-cdn.net",
+    "https://allcoachingeducators.vercel.app"
 ]
 
 ALLOWED_HOSTS = [
@@ -41,6 +42,7 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://educator-allcoaching.b-cdn.net",
+    "https://educator.allcoaching.in"
 ]
 
 REST_FRAMEWORK = {
