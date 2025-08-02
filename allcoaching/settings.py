@@ -32,7 +32,8 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     "https://educator-allcoaching.b-cdn.net",
-    "https://allcoachingeducators.vercel.app"
+    "https://allcoachingeducators.vercel.app",
+    "http://localhost:8080"
 ]
 
 ALLOWED_HOSTS = [
